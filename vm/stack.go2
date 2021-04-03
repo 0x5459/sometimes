@@ -1,0 +1,48 @@
+package vm
+
+import (
+	"errors"
+)
+
+var StackOverflow = errors.New("stack overflow")
+
+type Stack[T any] struct {
+	inner []T
+	top   Ptr // stack top pointer
+	cap   int
+}
+
+// NewStack returns a new Stack.
+func NewStack[T any](cap int) *Stack[T] {
+	return &Stack[T]{
+		inner: make([]T, 0, cap>>2),
+		top:   0,
+		cap:   cap,
+	}
+}
+
+// Push appends an element to the back of a stack.
+// or panic if the stack is full.
+func (s *Stack[T]) Push(v T) {
+	if s.top == s.cap {
+		panic(StackOverflow)
+	}
+	s.inner = append(s.inner, v)
+	s.top++
+}
+
+// Pop removes the last element from a stack and returns it,
+// or panic if it is empty.
+func (s *Stack[T]) Pop() T {
+	return s.PopN(1)
+}
+
+// PopN removes the last n elements from a stack and returns the last removed element,
+// or panic if it is empty.
+func (s *Stack[T]) PopN(n int) T {
+	if s.top < n {
+		panic(StackOverflow)
+	}
+	s.top -= n
+	return s.inner[s.top]
+}
