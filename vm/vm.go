@@ -8,5 +8,6 @@ type Frame struct {
 }
 
 type VM struct {
-	stack Stack
+	stack  VMStack
+	frames FrameStack
 }

@@ -8,21 +8,21 @@ import (
 func TestStack(t *testing.T) {
 
 	tests := []struct {
-		pushData []int
-		want     []int
+		pushData []uint
+		want     []uint
 	}{
 		{
-			pushData: []int{3, 1, 4, 1, 5, 9},
-			want:     []int{9, 5, 1, 4, 1, 3},
+			pushData: []uint{3, 1, 4, 1, 5, 9},
+			want:     []uint{9, 5, 1, 4, 1, 3},
 		},
 	}
 
 	for _, testcase := range tests {
-		s := NewStack(512)
+		s := NewVMStack(512)
 		for _, v := range testcase.pushData {
 			s.Push(v)
 		}
-		got := make([]int, 0, len(testcase.pushData))
+		got := make([]uint, 0, len(testcase.pushData))
 		for i := 0; i < len(testcase.pushData); i++ {
 			got = append(got, s.Pop())
 		}
@@ -40,7 +40,7 @@ func TestStack_Pop_stackoverflow(t *testing.T) {
 			t.Errorf("When popping an empty stack it should panic. want `%s`; got %v", want, got)
 		}
 	}()
-	s := NewStack(512)
+	s := NewVMStack(512)
 	s.Pop()
 }
 
@@ -53,9 +53,9 @@ func TestStack_Push_stackoverflow(t *testing.T) {
 			t.Errorf("push elements to a full stack. want `%s`; got %v", want, got)
 		}
 	}()
-	capacity := 32
-	s := NewStack(capacity)
-	for i:=0; i<capacity+1; i++ {
+	var i, capacity uint = 0, 32
+	s := NewVMStack(int(capacity))
+	for ; i < capacity+1; i++ {
 		s.Push(i)
 	}
 }

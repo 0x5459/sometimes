@@ -4,13 +4,39 @@ import (
 	"errors"
 )
 
+// Pointer type is int alias.
+type Ptr = int
+
+// Frame represents a call frame.
+type Frame struct {
+	RetAddr Ptr // instruction Pointer
+}
+
 var StackOverflow = errors.New("stack overflow")
+
+// vm stack type
+type VMStack Stack[uint]
+
+
+// Call frames stack
+type FrameStack Stack[Frame]
 
 type Stack[T any] struct {
 	inner []T
-	top   Ptr // stack top pointer
+	top   int // stack top pointer
 	cap   int
 }
+
+// NewVMStack returns a new VMStack.
+func NewVMStack(cap int) *Stack[uint] {
+	return NewStack[uint](cap);
+}
+
+// NewFrameStack returns a new FrameStack.
+func NewFrameStack(cap int) *Stack[Frame] {
+	return NewStack[Frame](cap);
+}
+
 
 // NewStack returns a new Stack.
 func NewStack[T any](cap int) *Stack[T] {

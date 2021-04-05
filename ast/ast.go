@@ -20,7 +20,7 @@ type (
 )
 
 func (bn *baseNode) StartPos() Pos { return bn.startPos }
-func (bn *baseNode) EndPos() Pos { return bn.endPos }
+func (bn *baseNode) EndPos() Pos   { return bn.endPos }
 
 type (
 	Type interface {
@@ -57,39 +57,39 @@ type (
 
 	Ident struct {
 		baseNode
-		Name             string
+		Name string
 	}
 
 	Literal struct {
 		baseExpr
-		Kind             token.Kind // token.INT_LITERAL, token.FLOAT_LITERAL, token.CHAR_LITERAL, token.STRING_LITERAL
-		Val              string     // 123, 3.14, 'a', "我的"
+		Kind token.Kind // token.INT_LITERAL, token.FLOAT_LITERAL, token.CHAR_LITERAL, token.STRING_LITERAL
+		Val  string     // 123, 3.14, 'a', "我的"
 	}
 
 	// (1+1), ...
 	ParenExpr struct {
 		baseExpr
-		inner            Expr // 1+1
+		inner Expr // 1+1
 	}
 
 	// arr[2+2], ...
 	IndexExpr struct {
 		baseExpr
-		Addr             Ident // arr
-		index            Expr  // 2+2
+		Addr  Ident // arr
+		index Expr  // 2+2
 	}
 
 	// [1+1, a(), 11], ...
 	ArrayExpr struct {
 		baseExpr
-		Element          []Expr
+		Element []Expr
 	}
 
 	// say(1+1, 99), ...
 	CallExpr struct {
 		baseExpr
-		Func             Expr
-		Args             []Expr
+		Func Expr
+		Args []Expr
 	}
 
 	// !b, ...
@@ -115,13 +115,13 @@ type (
 	// return 1+1, ...
 	ReturnExpr struct {
 		baseExpr
-		Ret      Expr
+		Ret Expr
 	}
 
 	// break 1+1, ...
 	BreakExpr struct {
 		baseExpr
-		Expr             Expr // optional
+		Expr Expr // optional
 	}
 
 	// continue
@@ -132,35 +132,35 @@ type (
 	// { a = 1+1; b = 2+2; }
 	BlockExpr struct {
 		baseExpr
-		ExprList         []Expr
+		ExprList []Expr
 	}
 
 	// if Cond { Body } else { Else }
 	IfExpr struct {
 		baseExpr
-		Cond             Expr // condition
-		Body             BlockExpr
-		Else             Expr // else expr; optional
+		Cond Expr // condition
+		Body BlockExpr
+		Else Expr // else expr; optional
 	}
 
 	// loop (Cond) { Body }
 	LoopExpr struct {
 		baseExpr
-		Cond             Expr // condition; optional
-		Body             BlockExpr
+		Cond Expr // condition; optional
+		Body BlockExpr
 	}
 
 	// let (a = 10, b=20, 1+1), ...
 	LetExpr struct {
 		baseExpr
-		Decls            []ValueDecl
-		LastExpr         Expr // optional
+		Decls    []ValueDecl
+		LastExpr Expr // optional
 	}
 
 	// const (A=10, B=1+1)
 	ConstExpr struct {
 		baseExpr
-		Decls            []ValueDecl
+		Decls []ValueDecl
 	}
 
 	// type (
@@ -171,11 +171,11 @@ type (
 	//)
 	TypeExpr struct {
 		baseExpr
-		Decls            []TypeDecl
+		Decls []TypeDecl
 	}
 )
 
-func (baseNode) exprNode () {}
+func (baseNode) exprNode() {}
 
 // declares
 type (
@@ -189,9 +189,9 @@ type (
 // fn f(n int) -> int { xxx }
 type FnDecl struct {
 	baseNode
-	Args             []FieldDef
-	Ret              Type
-	Body             BlockExpr
+	Args []FieldDef
+	Ret  Type
+	Body BlockExpr
 }
 
 func (fd *FnDecl) StartPos() Pos { return fd.startPos }
