@@ -52,11 +52,11 @@ type (
 	}
 
 	baseExpr struct {
-		baseNode
+		*baseNode
 	}
 
 	Ident struct {
-		baseNode
+		*baseNode
 		Name string
 	}
 

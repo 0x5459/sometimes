@@ -2,27 +2,42 @@ package vm
 
 import (
 	"reflect"
+	"sometimes/ir/value"
 	"testing"
 )
 
 func TestStack(t *testing.T) {
 
 	tests := []struct {
-		pushData []uint
-		want     []uint
+		pushData []value.Value
+		want     []value.Value
 	}{
 		{
-			pushData: []uint{3, 1, 4, 1, 5, 9},
-			want:     []uint{9, 5, 1, 4, 1, 3},
+			pushData: []value.Value{
+				&value.Number{Val: 3},
+				&value.Number{Val: 1},
+				&value.Number{Val: 4},
+				&value.Number{Val: 1},
+				&value.Number{Val: 5},
+				&value.Number{Val: 9},
+			},
+			want: []value.Value{
+				&value.Number{Val: 9},
+				&value.Number{Val: 5},
+				&value.Number{Val: 1},
+				&value.Number{Val: 4},
+				&value.Number{Val: 1},
+				&value.Number{Val: 3},
+			},
 		},
 	}
 
 	for _, testcase := range tests {
-		s := NewVMStack(512)
+		s := NewOperandStack(512)
 		for _, v := range testcase.pushData {
 			s.Push(v)
 		}
-		got := make([]uint, 0, len(testcase.pushData))
+		got := make([]value.Value, 0, len(testcase.pushData))
 		for i := 0; i < len(testcase.pushData); i++ {
 			got = append(got, s.Pop())
 		}
@@ -40,10 +55,9 @@ func TestStack_Pop_stackoverflow(t *testing.T) {
 			t.Errorf("When popping an empty stack it should panic. want `%s`; got %v", want, got)
 		}
 	}()
-	s := NewVMStack(512)
+	s := NewOperandStack(512)
 	s.Pop()
 }
-
 
 func TestStack_Push_stackoverflow(t *testing.T) {
 	defer func() {
@@ -54,9 +68,8 @@ func TestStack_Push_stackoverflow(t *testing.T) {
 		}
 	}()
 	var i, capacity uint = 0, 32
-	s := NewVMStack(int(capacity))
+	s := NewOperandStack(int(capacity))
 	for ; i < capacity+1; i++ {
-		s.Push(i)
+		s.Push(&value.Number{Val: int(i)})
 	}
 }
-
