@@ -139,7 +139,7 @@ type (
 	IfExpr struct {
 		baseExpr
 		Cond Expr // condition
-		Body BlockExpr
+		Body Expr
 		Else Expr // else expr; optional
 	}
 

@@ -8,15 +8,16 @@ func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
-	_ = x[TypeNumber-0]
-	_ = x[TypeBoolean-1]
-	_ = x[TypeChar-2]
-	_ = x[TypeString-3]
+	_ = x[TypeInt-0]
+	_ = x[TypeFloat-1]
+	_ = x[TypeBoolean-2]
+	_ = x[TypeChar-3]
+	_ = x[TypeNil-4]
 }
 
-const _Type_name = "NumberBooleanCharString"
+const _Type_name = "IntFloatBooleanCharNil"
 
-var _Type_index = [...]uint8{0, 6, 13, 17, 23}
+var _Type_index = [...]uint8{0, 3, 8, 15, 19, 22}
 
 func (i Type) String() string {
 	if i >= Type(len(_Type_index)-1) {
