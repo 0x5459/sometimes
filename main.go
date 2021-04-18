@@ -26,6 +26,7 @@ func main() {
 			Op:  hir.OpAdd,
 		},
 	})
+
 	hirBuilder.Emit(&hir.ExprMutate{
 		Lhs: varB,
 		Rhs: &hir.ExprBinary{

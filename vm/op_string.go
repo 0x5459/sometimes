@@ -31,15 +31,14 @@ func _() {
 	_ = x[OpJF-20]
 	_ = x[OpCall-21]
 	_ = x[OpRet-22]
-	_ = x[OpSwap-23]
-	_ = x[OpPush-24]
-	_ = x[OpLoad-25]
-	_ = x[OpStore-26]
+	_ = x[OpPush-23]
+	_ = x[OpLoad-24]
+	_ = x[OpStore-25]
 }
 
-const _Op_name = "op_arith_startAddSubMulDivModNegop_arith_endop_logic_startEqNEGTLTGTELTENotAndOrop_logic_endJmpJFCallRetSwapPushLoadStore"
+const _Op_name = "op_arith_startAddSubMulDivModNegop_arith_endop_logic_startEqNEGTLTGTELTENotAndOrop_logic_endJmpJFCallRetPushLoadStore"
 
-var _Op_index = [...]uint8{0, 14, 17, 20, 23, 26, 29, 32, 44, 58, 60, 62, 64, 66, 69, 72, 75, 78, 80, 92, 95, 97, 101, 104, 108, 112, 116, 121}
+var _Op_index = [...]uint8{0, 14, 17, 20, 23, 26, 29, 32, 44, 58, 60, 62, 64, 66, 69, 72, 75, 78, 80, 92, 95, 97, 101, 104, 108, 112, 117}
 
 func (i Op) String() string {
 	if i >= Op(len(_Op_index)-1) {

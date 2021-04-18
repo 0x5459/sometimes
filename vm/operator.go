@@ -12,12 +12,12 @@ type arithOperator struct {
 }
 
 var arithOperators = []arithOperator{
-	OpAdd - op_arith_start: arithOperator{intFunc: _iadd, floatFunc: _fadd},
-	OpSub - op_arith_start: arithOperator{intFunc: _isub, floatFunc: _fsub},
-	OpMul - op_arith_start: arithOperator{intFunc: _imul, floatFunc: _fmul},
-	OpDiv - op_arith_start: arithOperator{intFunc: _idiv, floatFunc: _fdiv},
-	OpMod - op_arith_start: arithOperator{intFunc: _imod, floatFunc: _fmod},
-	OpNeg - op_arith_start: arithOperator{intFunc: _ineg, floatFunc: _fneg},
+	OpAdd - op_arith_start: {intFunc: _iadd, floatFunc: _fadd},
+	OpSub - op_arith_start: {intFunc: _isub, floatFunc: _fsub},
+	OpMul - op_arith_start: {intFunc: _imul, floatFunc: _fmul},
+	OpDiv - op_arith_start: {intFunc: _idiv, floatFunc: _fdiv},
+	OpMod - op_arith_start: {intFunc: _imod, floatFunc: _fmod},
+	OpNeg - op_arith_start: {intFunc: _ineg, floatFunc: _fneg},
 }
 
 type ArithInstruction interface {

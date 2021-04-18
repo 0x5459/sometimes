@@ -51,6 +51,7 @@ func (vm *VM) Execute() {
 			}
 		case *InstrCall:
 			vm.frames.Push(&Frame{
+				// todo max_local_length
 				Local:   NewLocal(instr.Arity),
 				RetAddr: vm.pc,
 			})
@@ -84,6 +85,7 @@ func (vm *VM) Execute() {
 			x := vm.operandStack.Pop()
 			vm.operandStack.Push(&value.Boolean{Val: logic(instr, x, &value.Nil{})})
 		}
+		vm.PrintOperandStack()
 	}
 
 }

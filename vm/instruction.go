@@ -35,12 +35,10 @@ const (
 	OpCall
 	OpRet // return
 
-	OpSwap // Swap the top two items on the stack.
-
 	OpPush
 
-	OpLoad // Push a copy of the local with the given offset on to the stack
-	OpStore
+	OpLoad  // Push a copy of the local with the given offset on to the stack
+	OpStore // Store value of stack top to local with the given offset
 )
 
 // Instruction is one instruction executed by the vm
