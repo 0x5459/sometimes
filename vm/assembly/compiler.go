@@ -141,6 +141,7 @@ func (c *Compiler) compileExpr(expr hir.Expr) {
 	case *hir.ExprMutate:
 		if variable, ok := e.Lhs.(*hir.ExprVar); ok {
 			c.compileExpr(e.Rhs)
+
 			instr := c.states.Last().StoreVar(variable.VarBinding)
 			c.asm.Emit(instr)
 		} else {
@@ -152,10 +153,10 @@ func (c *Compiler) compileExpr(expr hir.Expr) {
 		c.compileExpr(e.Rhs)
 		c.asm.Emit(hirBinaryOpToAssemblyInstr(e.Op))
 	case *hir.ExprCall:
-		c.compileExpr(e.Callee)
 		for _, arg := range e.Args {
 			c.compileExpr(arg)
 		}
+		c.compileExpr(e.Callee)
 		c.asm.Emit(&AssemblyInstrCall{})
 	case *hir.ExprFunction:
 		c.states.Push(newCompileState())

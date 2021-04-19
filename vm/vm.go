@@ -1,7 +1,6 @@
 package vm
 
 import (
-	"errors"
 	"fmt"
 	"sometimes/vm/value"
 )
@@ -53,10 +52,10 @@ func (vm *VM) Execute() {
 			// jump to function
 			vm.pc = f.Addr
 		case *InstrRet:
-			if vm.frames.IsEmpty() {
-				panic(errors.New("can't return from top-level"))
-			}
 			frame := vm.frames.Pop()
+			if vm.frames.IsEmpty() {
+				return
+			}
 			// jump to caller
 			vm.pc = frame.RetAddr
 		case *InstrLoad:

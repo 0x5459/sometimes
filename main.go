@@ -7,6 +7,18 @@ import (
 )
 
 func main() {
+
+	hirBuilder := hir.NewBuilder()
+	hirBuilder.InsertFunc(funcMain(), true)
+	hirBuilder.InsertFunc(funcTest(), false)
+	asmCompiler := assembly.NewCompiler(hirBuilder.Build())
+	asm := asmCompiler.Compile()
+	program := vm.NewProgramFromAsm(asm)
+	machine := vm.New(program, 256, 128)
+	machine.Execute()
+}
+
+func funcMain() *hir.ExprFunction {
 	hirFuncBuilder := hir.NewFuncBuilder("main", []*hir.Binding{})
 	varA := &hir.ExprVar{
 		VarBinding: hir.NewBinding("a"),
@@ -44,11 +56,35 @@ func main() {
 		},
 	})
 
-	hirBuilder := hir.NewBuilder()
-	hirBuilder.InsertFunc(hirFuncBuilder.Build(), true)
-	asmCompiler := assembly.NewCompiler(hirBuilder.Build())
-	asm := asmCompiler.Compile()
-	program := vm.NewProgramFromAsm(asm)
-	machine := vm.New(program, 256, 128)
-	machine.Execute()
+	hirFuncBuilder.Emit(&hir.ExprCall{
+		Callee: &hir.ExprVar{VarBinding: hir.NewBinding("test")},
+		Args:   []hir.Expr{varB, varC},
+	})
+	hirFuncBuilder.Emit(&hir.ExprReturn{})
+	return hirFuncBuilder.Build()
+}
+
+func funcTest() *hir.ExprFunction {
+	varA := &hir.ExprVar{
+		VarBinding: hir.NewBinding("a"),
+	}
+	varB := &hir.ExprVar{
+		VarBinding: hir.NewBinding("b"),
+	}
+	hirFuncBuilder := hir.NewFuncBuilder("test", []*hir.Binding{varA.VarBinding, varB.VarBinding})
+
+	varC := &hir.ExprVar{
+		VarBinding: hir.NewBinding("c"),
+	}
+
+	hirFuncBuilder.Emit(&hir.ExprMutate{
+		Lhs: varC,
+		Rhs: &hir.ExprBinary{
+			Lhs: varA,
+			Rhs: varB,
+			Op:  hir.OpAdd,
+		},
+	})
+	hirFuncBuilder.Emit(&hir.ExprReturn{Expr: varC})
+	return hirFuncBuilder.Build()
 }
