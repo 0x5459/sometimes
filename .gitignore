@@ -20,3 +20,5 @@ out/
 
 # Vscode files
 .vscode/**
+
+go.sum
