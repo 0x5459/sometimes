@@ -77,12 +77,31 @@ func funcTest() *hir.ExprFunction {
 		VarBinding: hir.NewBinding("c"),
 	}
 
-	hirFuncBuilder.Emit(&hir.ExprMutate{
-		Lhs: varC,
-		Rhs: &hir.ExprBinary{
+	hirFuncBuilder.Emit(&hir.ExprIf{
+		Cond: &hir.ExprBinary{
 			Lhs: varA,
-			Rhs: varB,
-			Op:  hir.OpAdd,
+			Rhs: &hir.ExprLiteral{Val: hir.NewValueInt(100)},
+			Op:  hir.OpGT,
+		},
+		Body: &hir.ExprBlock{
+			Body: []hir.Expr{&hir.ExprMutate{
+				Lhs: varC,
+				Rhs: &hir.ExprBinary{
+					Lhs: varA,
+					Rhs: varB,
+					Op:  hir.OpAdd,
+				},
+			}},
+		},
+		Else: &hir.ExprBlock{
+			Body: []hir.Expr{&hir.ExprMutate{
+				Lhs: varC,
+				Rhs: &hir.ExprBinary{
+					Lhs: varA,
+					Rhs: varB,
+					Op:  hir.OpMul,
+				},
+			}},
 		},
 	})
 	hirFuncBuilder.Emit(&hir.ExprReturn{Expr: varC})

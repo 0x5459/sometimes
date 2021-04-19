@@ -81,6 +81,7 @@ type Compiler struct {
 
 func NewCompiler(hirProgram *hir.Program) *Compiler {
 	return &Compiler{
+		labelGen:   NewLabelGen(),
 		hirProgram: hirProgram,
 		asm:        NewAssemblyProgram(),
 		states: []*compileState{ // todo temp
@@ -229,21 +230,21 @@ type LabelGen struct {
 	ifID, loopID uint32
 }
 
+func NewLabelGen() *LabelGen {
+	return &LabelGen{
+		ifID:   0,
+		loopID: 0,
+	}
+}
+
 func (lg *LabelGen) NextIfLabel() (elseIf, endIf string) {
+	ifID := lg.ifID
 	atomic.AddUint32(&lg.ifID, 1)
-	return lg.IfLabel()
+	return fmt.Sprintf("else-%d", ifID), fmt.Sprintf("endif-%d", ifID)
 }
 
 func (lg *LabelGen) NextLoopLabel() (loopStart, loopEnd string) {
 	atomic.AddUint32(&lg.loopID, 1)
-	return lg.LoopLabel()
-}
-
-func (lg *LabelGen) IfLabel() (elseIf, endIf string) {
-	return fmt.Sprintf("else-%d", lg.ifID), fmt.Sprintf("endif-%d", lg.ifID)
-}
-
-func (lg *LabelGen) LoopLabel() (loopStart, loopEnd string) {
 	return fmt.Sprintf("loopStart-%d", lg.loopID), fmt.Sprintf("loopEnd-%d", lg.loopID)
 }
 

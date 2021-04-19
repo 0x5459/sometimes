@@ -138,19 +138,22 @@ func (*InstrOr) isBinaryLogic()  {}
 func (*InstrNot) isUnaryLogic()  {}
 
 func logic(op LogicInstruction, x, y value.Value) bool {
-	f := logicOperators[op.Op()]
+	f := logicOperators[op.Op()-op_logic_start]
 	return f(x, y)
 }
 
 func _eq(x, y value.Value) bool {
 	switch a := x.(type) {
 	case (*value.Int):
+		if b, ok := y.(*value.Int); ok {
+			return a.Val == b.Val
+		}
 	case (*value.Float):
+		if b, ok := y.(*value.Float); ok {
+			return a.Val == b.Val
+		}
 	case (*value.Char):
-		switch b := y.(type) {
-		case (*value.Int):
-		case (*value.Float):
-		case (*value.Char):
+		if b, ok := y.(*value.Char); ok {
 			return a.Val == b.Val
 		}
 	case (*value.Boolean):
@@ -171,12 +174,15 @@ func _ne(x, y value.Value) bool {
 func _gt(x, y value.Value) bool {
 	switch a := x.(type) {
 	case (*value.Int):
+		if b, ok := y.(*value.Int); ok {
+			return a.Val > b.Val
+		}
 	case (*value.Float):
+		if b, ok := y.(*value.Float); ok {
+			return a.Val > b.Val
+		}
 	case (*value.Char):
-		switch b := y.(type) {
-		case (*value.Int):
-		case (*value.Float):
-		case (*value.Char):
+		if b, ok := y.(*value.Char); ok {
 			return a.Val > b.Val
 		}
 	}
@@ -186,12 +192,15 @@ func _gt(x, y value.Value) bool {
 func _lt(x, y value.Value) bool {
 	switch a := x.(type) {
 	case (*value.Int):
+		if b, ok := y.(*value.Int); ok {
+			return a.Val < b.Val
+		}
 	case (*value.Float):
+		if b, ok := y.(*value.Float); ok {
+			return a.Val < b.Val
+		}
 	case (*value.Char):
-		switch b := y.(type) {
-		case (*value.Int):
-		case (*value.Float):
-		case (*value.Char):
+		if b, ok := y.(*value.Char); ok {
 			return a.Val < b.Val
 		}
 	}
@@ -201,12 +210,15 @@ func _lt(x, y value.Value) bool {
 func _gte(x, y value.Value) bool {
 	switch a := x.(type) {
 	case (*value.Int):
+		if b, ok := y.(*value.Int); ok {
+			return a.Val >= b.Val
+		}
 	case (*value.Float):
+		if b, ok := y.(*value.Float); ok {
+			return a.Val >= b.Val
+		}
 	case (*value.Char):
-		switch b := y.(type) {
-		case (*value.Int):
-		case (*value.Float):
-		case (*value.Char):
+		if b, ok := y.(*value.Char); ok {
 			return a.Val >= b.Val
 		}
 	}
@@ -216,12 +228,15 @@ func _gte(x, y value.Value) bool {
 func _lte(x, y value.Value) bool {
 	switch a := x.(type) {
 	case (*value.Int):
+		if b, ok := y.(*value.Int); ok {
+			return a.Val <= b.Val
+		}
 	case (*value.Float):
+		if b, ok := y.(*value.Float); ok {
+			return a.Val <= b.Val
+		}
 	case (*value.Char):
-		switch b := y.(type) {
-		case (*value.Int):
-		case (*value.Float):
-		case (*value.Char):
+		if b, ok := y.(*value.Char); ok {
 			return a.Val <= b.Val
 		}
 	}
