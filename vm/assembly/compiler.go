@@ -20,13 +20,13 @@ func newCompileState() *compileState {
 }
 
 func (cs *compileState) StoreVar(b *hir.Binding) *AssemblyInstrStore {
-	if localIdx, ok := cs.locals[b.Name]; !ok {
+	localIdx, ok := cs.locals[b.Name]
+	if !ok {
+		localIdx = cs.localIdx
+		cs.locals[b.Name] = localIdx
 		cs.localIdx++
-		cs.locals[b.Name] = cs.localIdx
-		return &AssemblyInstrStore{Offset: cs.localIdx}
-	} else {
-		return &AssemblyInstrStore{Offset: localIdx}
 	}
+	return &AssemblyInstrStore{Offset: localIdx}
 
 }
 
@@ -81,9 +81,7 @@ func NewCompiler(hirProgram *hir.Program) *Compiler {
 }
 
 func (c *Compiler) Compile() *AssemblyProgram {
-	for _, e := range c.hirProgram.Code {
-		c.compileExpr(e)
-	}
+	c.compileExpr(c.hirProgram.EntryFunc)
 	return c.asm
 }
 

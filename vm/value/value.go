@@ -1,6 +1,7 @@
 package value
 
 import (
+	"encoding/gob"
 	"fmt"
 	"strconv"
 )
@@ -99,4 +100,12 @@ func Equal(x, y Value) bool {
 		return ok
 	}
 	return false
+}
+
+func init() {
+	gob.RegisterName("sometimes/vm/value.Int", &Int{})
+	gob.RegisterName("sometimes/vm/value.Float", &Float{})
+	gob.RegisterName("sometimes/vm/value.Boolean", &Boolean{})
+	gob.RegisterName("sometimes/vm/value.Char", &Char{})
+	gob.RegisterName("sometimes/vm/value.Nil", &Nil{})
 }

@@ -1,5 +1,7 @@
 package vm
 
+import "encoding/gob"
+
 type Ptr = int
 type DataID = int
 
@@ -114,3 +116,27 @@ func (*InstrRet) Op() Op   { return OpRet }
 func (*InstrPush) Op() Op  { return OpPush }
 func (*InstrLoad) Op() Op  { return OpLoad }
 func (*InstrStore) Op() Op { return OpStore }
+
+func init() {
+	gob.RegisterName("sometimes/vm.InstrAdd", &InstrAdd{})
+	gob.RegisterName("sometimes/vm.InstrSub", &InstrSub{})
+	gob.RegisterName("sometimes/vm.InstrMul", &InstrMul{})
+	gob.RegisterName("sometimes/vm.InstrDiv", &InstrDiv{})
+	gob.RegisterName("sometimes/vm.InstrMod", &InstrMod{})
+	gob.RegisterName("sometimes/vm.InstrNeg", &InstrNeg{})
+	gob.RegisterName("sometimes/vm.InstrEq", &InstrEq{})
+	gob.RegisterName("sometimes/vm.InstrNE", &InstrNE{})
+	gob.RegisterName("sometimes/vm.InstrGT", &InstrGT{})
+	gob.RegisterName("sometimes/vm.InstrLT", &InstrLT{})
+	gob.RegisterName("sometimes/vm.InstrGTE", &InstrGTE{})
+	gob.RegisterName("sometimes/vm.InstrLTE", &InstrLTE{})
+	gob.RegisterName("sometimes/vm.InstrNot", &InstrNot{})
+	gob.RegisterName("sometimes/vm.InstrAnd", &InstrAnd{})
+	gob.RegisterName("sometimes/vm.InstrOr", &InstrOr{})
+	gob.RegisterName("sometimes/vm.InstrJmp", &InstrJmp{})
+	gob.RegisterName("sometimes/vm.InstrCall", &InstrCall{})
+	gob.RegisterName("sometimes/vm.InstrRet", &InstrRet{})
+	gob.RegisterName("sometimes/vm.InstrPush", &InstrPush{})
+	gob.RegisterName("sometimes/vm.InstrLoad", &InstrLoad{})
+	gob.RegisterName("sometimes/vm.InstrStore", &InstrStore{})
+}

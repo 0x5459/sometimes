@@ -23,7 +23,7 @@ func New(program *Program, operandStackCap, frameStackCap int) *VM {
 	return &VM{
 		operandStack: NewOperandStack(operandStackCap),
 		frames:       frames,
-		pc:           program.Entry(),
+		pc:           program.Entry,
 		program:      program,
 	}
 }

@@ -6,8 +6,8 @@ import (
 )
 
 type Program struct {
-	Code   []Expr
-	consts map[string]Value
+	EntryFunc *ExprFunction
+	consts    map[string]Value
 }
 
 func (p *Program) FindConst(name string) (val Value, isExist bool) {
@@ -15,63 +15,47 @@ func (p *Program) FindConst(name string) (val Value, isExist bool) {
 	return
 }
 
-type Builder struct {
-	code   []Expr
-	consts map[string]Value
+type FuncBuilder struct {
+	maxLocals int
+	function  *ExprFunction
+	consts    map[string]Value
 }
 
-func NewBuilder() *Builder {
-	return &Builder{}
+func NewFuncBuilder(funcName string, args []*Binding) *FuncBuilder {
+	return &FuncBuilder{
+		maxLocals: len(args),
+		function: &ExprFunction{
+			Func: &Function{
+				Name: funcName,
+				Body: &ExprBlock{},
+			},
+		},
+	}
 }
 
-func (b *Builder) Emit(e Expr) {
-	b.code = append(b.code, e)
+func (b *FuncBuilder) Emit(e Expr) {
+	if _, ok := e.(*ExprVar); ok {
+		b.maxLocals++
+	}
+	b.function.Func.Body.Body = append(b.function.Func.Body.Body, e)
 }
 
-func (b *Builder) InsertConst(name string, val Value) {
+func (b *FuncBuilder) InsertConst(name string, val Value) {
 	b.consts[name] = val
 }
 
-func (b *Builder) Build() *Program {
-	return &Program{Code: b.code, consts: b.consts}
+func (b *FuncBuilder) Build() *Program {
+	return &Program{EntryFunc: b.function, consts: b.consts}
 }
 
 type Binding struct {
 	Name string
-	// Depth < 0 if dealing with a global.
-	Depth, FuncDepth int
 }
 
-func NewBinding(name string, depth, funcDepth int) *Binding {
+func NewBinding(name string) *Binding {
 	return &Binding{
-		Name:      name,
-		Depth:     depth,
-		FuncDepth: funcDepth,
+		Name: name,
 	}
-}
-
-func NewGlobalBinding(name string) *Binding {
-	return &Binding{
-		Name:      name,
-		Depth:     -1,
-		FuncDepth: 0,
-	}
-}
-
-func (b *Binding) IsUpvalue() bool {
-	return b.Depth > b.FuncDepth
-}
-
-func (b *Binding) IsConst() bool {
-	return b.Depth < 0
-}
-
-func (b *Binding) UpvalueDepth() (depth int, isUpvalue bool) {
-	if b.IsUpvalue() {
-		depth = b.Depth - b.FuncDepth
-		isUpvalue = true
-	}
-	return
 }
 
 type Function struct {

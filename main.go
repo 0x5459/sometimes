@@ -7,15 +7,15 @@ import (
 )
 
 func main() {
-	hirBuilder := hir.NewBuilder()
+	hirBuilder := hir.NewFuncBuilder("main", []*hir.Binding{})
 	varA := &hir.ExprVar{
-		VarBinding: hir.NewBinding("a", 0, 0),
+		VarBinding: hir.NewBinding("a"),
 	}
 	varB := &hir.ExprVar{
-		VarBinding: hir.NewBinding("b", 0, 0),
+		VarBinding: hir.NewBinding("b"),
 	}
 	varC := &hir.ExprVar{
-		VarBinding: hir.NewBinding("c", 0, 0),
+		VarBinding: hir.NewBinding("c"),
 	}
 
 	hirBuilder.Emit(&hir.ExprMutate{
@@ -46,7 +46,7 @@ func main() {
 	hirProgram := hirBuilder.Build()
 	asmCompiler := assembly.NewCompiler(hirProgram)
 	asm := asmCompiler.Compile()
-	program := vm.NewProgram(asm)
+	program := vm.NewProgramFromAsm(asm)
 	machine := vm.New(program, 256, 128)
 	machine.Execute()
 }

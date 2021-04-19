@@ -1,18 +1,29 @@
 package vm
 
 import (
+	"encoding/gob"
 	"fmt"
+	"io"
 	"sometimes/vm/assembly"
 	"sometimes/vm/value"
 )
 
 type Program struct {
-	instructions []Instruction
-	consts       []value.Value
-	entry        Ptr
+	Instructions []Instruction
+	Consts       []value.Value
+	Entry        Ptr
 }
 
-func NewProgram(asm *assembly.AssemblyProgram) *Program {
+func NewProgramFromBinary(r io.Reader) *Program {
+	dec := gob.NewDecoder(r)
+	var p Program
+	if err := dec.Decode(&p); err != nil {
+		panic(err)
+	}
+	return &p
+}
+
+func NewProgramFromAsm(asm *assembly.AssemblyProgram) *Program {
 	instrs := make([]Instruction, len(asm.Instructions))
 	for i, assemblyInstruction := range asm.Instructions {
 		switch asmInstr := assemblyInstruction.(type) {
@@ -68,9 +79,9 @@ func NewProgram(asm *assembly.AssemblyProgram) *Program {
 		consts[id] = v
 	}
 	return &Program{
-		instructions: instrs,
-		consts:       consts,
-		entry:        0,
+		Instructions: instrs,
+		Consts:       consts,
+		Entry:        0,
 	}
 }
 
@@ -81,13 +92,9 @@ func getAsmLabelAddr(asm *assembly.AssemblyProgram, label string) Ptr {
 	panic(fmt.Errorf("label: %s not exist", label))
 }
 
-func (p *Program) Entry() Ptr {
-	return p.entry
-}
-
 func (p *Program) FetchInstruction(addr Ptr) (ins Instruction, exist bool) {
-	if len(p.instructions) > addr {
-		ins, exist = p.instructions[addr], true
+	if len(p.Instructions) > addr {
+		ins, exist = p.Instructions[addr], true
 	} else {
 		ins, exist = nil, false
 	}
@@ -95,10 +102,18 @@ func (p *Program) FetchInstruction(addr Ptr) (ins Instruction, exist bool) {
 }
 
 func (p *Program) GetConst(dataId int) (val value.Value, exist bool) {
-	if len(p.consts) > dataId {
-		val, exist = p.consts[dataId], true
+	if len(p.Consts) > dataId {
+		val, exist = p.Consts[dataId], true
 	} else {
 		val, exist = nil, false
 	}
 	return
+}
+
+func (p *Program) WriteBinary(w io.Writer) {
+	enc := gob.NewEncoder(w)
+	err := enc.Encode(p)
+	if err != nil {
+		panic(err)
+	}
 }
