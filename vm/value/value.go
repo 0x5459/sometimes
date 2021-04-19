@@ -6,6 +6,8 @@ import (
 	"strconv"
 )
 
+type Ptr = int
+
 //go:generate stringer -type=Type -trimprefix=Type
 type Type uint8
 
@@ -15,6 +17,7 @@ const (
 	TypeBoolean
 	TypeChar
 	TypeNil
+	TypeFunc
 )
 
 type Value interface {
@@ -42,6 +45,10 @@ type (
 	}
 	Nil struct {
 	}
+	Func struct {
+		Addr      Ptr
+		MaxLocals int
+	}
 )
 
 func (*Int) Type() Type     { return TypeInt }
@@ -49,6 +56,7 @@ func (*Float) Type() Type   { return TypeFloat }
 func (*Boolean) Type() Type { return TypeBoolean }
 func (*Char) Type() Type    { return TypeChar }
 func (*Nil) Type() Type     { return TypeNil }
+func (*Func) Type() Type    { return TypeFunc }
 
 func (*Int) isNumber()   {}
 func (*Float) isNumber() {}
@@ -77,29 +85,8 @@ func (n *Nil) String() string {
 	return "<nil>"
 }
 
-func Equal(x, y Value) bool {
-	switch a := x.(type) {
-	case *Int:
-		if b, ok := y.(*Int); ok {
-			return a.Val == b.Val
-		}
-	case *Float:
-		if b, ok := y.(*Float); ok {
-			return a.Val == b.Val
-		}
-	case *Boolean:
-		if b, ok := y.(*Boolean); ok {
-			return a.Val == b.Val
-		}
-	case *Char:
-		if b, ok := y.(*Char); ok {
-			return a.Val == b.Val
-		}
-	case *Nil:
-		_, ok := y.(*Nil)
-		return ok
-	}
-	return false
+func (f *Func) String() string {
+	return fmt.Sprintf("Func @%d", f.Addr)
 }
 
 func init() {
@@ -108,4 +95,5 @@ func init() {
 	gob.RegisterName("sometimes/vm/value.Boolean", &Boolean{})
 	gob.RegisterName("sometimes/vm/value.Char", &Char{})
 	gob.RegisterName("sometimes/vm/value.Nil", &Nil{})
+	gob.RegisterName("sometimes/vm/value.Func", &Func{})
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"io"
+	"sometimes/hir"
 	"sometimes/vm/assembly"
 	"sometimes/vm/value"
 )
@@ -62,7 +63,7 @@ func NewProgramFromAsm(asm *assembly.AssemblyProgram) *Program {
 		case *assembly.AssemblyInstrJF:
 			instrs[i] = &InstrJF{Addr: getAsmLabelAddr(asm, asmInstr.Label)}
 		case *assembly.AssemblyInstrCall:
-			instrs[i] = &InstrCall{Addr: getAsmLabelAddr(asm, asmInstr.Label)}
+			instrs[i] = &InstrCall{}
 		case *assembly.AssemblyInstrRet:
 			instrs[i] = &InstrRet{}
 		case *assembly.AssemblyInstrPush:
@@ -76,7 +77,14 @@ func NewProgramFromAsm(asm *assembly.AssemblyProgram) *Program {
 
 	consts := make([]value.Value, asm.Consts.MaxDataID())
 	for id, v := range asm.Consts.Inner {
-		consts[id] = v
+		if f, ok := v.(*hir.ValueFunc); ok {
+			consts[id] = &value.Func{
+				Addr:      getAsmLabelAddr(asm, f.FuncName),
+				MaxLocals: f.MaxLoacls,
+			}
+		} else {
+			consts[id] = hirValueToVmValue(v)
+		}
 	}
 	return &Program{
 		Instructions: instrs,
@@ -116,4 +124,21 @@ func (p *Program) WriteBinary(w io.Writer) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func hirValueToVmValue(hirVal hir.Value) value.Value {
+	switch hv := hirVal.(type) {
+	case *hir.ValueInt:
+		return &value.Int{Val: hv.Val}
+	case *hir.ValueFloat:
+		return &value.Float{Val: hv.Val}
+	case *hir.ValueBoolean:
+		return &value.Boolean{Val: hv.Val}
+	case *hir.ValueString:
+		// todo vm value unsupport string
+		return &value.Char{Val: rune(hv.Val[0])}
+	case *hir.ValueNil:
+		return &value.Nil{}
+	}
+	return &value.Nil{}
 }

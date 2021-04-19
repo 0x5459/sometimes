@@ -15,11 +15,6 @@ type VM struct {
 
 func New(program *Program, operandStackCap, frameStackCap int) *VM {
 	frames := NewFrameStack(frameStackCap)
-	// todo temp
-	frames.Push(&Frame{
-		Local:   NewLocal(100),
-		RetAddr: 0,
-	})
 	return &VM{
 		operandStack: NewOperandStack(operandStackCap),
 		frames:       frames,
@@ -36,7 +31,7 @@ func (vm *VM) fetch() (ins Instruction, exist bool) {
 }
 
 func (vm *VM) Execute() {
-	for ins, exist := vm.fetch(); exist && !vm.frames.IsEmpty(); ins, exist = vm.fetch() {
+	for ins, exist := vm.fetch(); exist; ins, exist = vm.fetch() {
 		fmt.Println(ins.Op(), ins)
 		switch instr := ins.(type) {
 		case *InstrPush:
@@ -50,13 +45,13 @@ func (vm *VM) Execute() {
 				vm.pc = instr.Addr
 			}
 		case *InstrCall:
+			f := vm.operandStack.Pop().(*value.Func)
 			vm.frames.Push(&Frame{
-				// todo max_local_length
-				Local:   NewLocal(instr.Arity),
+				Local:   NewLocal(f.MaxLocals),
 				RetAddr: vm.pc,
 			})
 			// jump to function
-			vm.pc = instr.Addr
+			vm.pc = f.Addr
 		case *InstrRet:
 			if vm.frames.IsEmpty() {
 				panic(errors.New("can't return from top-level"))

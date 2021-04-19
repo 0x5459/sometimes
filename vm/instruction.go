@@ -75,10 +75,8 @@ type (
 		Addr Ptr
 	}
 
-	InstrCall struct {
-		Addr  Ptr
-		Arity int // args length
-	}
+	InstrCall struct{}
+
 	InstrRet struct{}
 
 	InstrPush struct {

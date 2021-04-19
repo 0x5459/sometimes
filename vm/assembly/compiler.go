@@ -3,7 +3,6 @@ package assembly
 import (
 	"fmt"
 	"sometimes/hir"
-	"sometimes/vm/value"
 	"sync/atomic"
 )
 
@@ -30,8 +29,17 @@ func (cs *compileState) StoreVar(b *hir.Binding) *AssemblyInstrStore {
 
 }
 
+func (cs *compileState) IsLocalVar(b *hir.Binding) bool {
+	_, ok := cs.locals[b.Name]
+	return ok
+}
+
 func (cs *compileState) LoadVar(b *hir.Binding) *AssemblyInstrLoad {
 	return &AssemblyInstrLoad{Offset: cs.locals[b.Name]}
+}
+
+func (cs *compileState) MaxLocals() int {
+	return len(cs.locals)
 }
 
 type compileStateStack []*compileState
@@ -63,11 +71,12 @@ func (s *compileStateStack) Pop() (cs *compileState, isExist bool) {
 
 /// Compile hir to assembly
 type Compiler struct {
-	labelGen       *LabelGen
-	loopLabelStack *LoopLabelStack
-	asm            *AssemblyProgram
-	hirProgram     *hir.Program
-	states         compileStateStack
+	labelGen            *LabelGen
+	loopLabelStack      *LoopLabelStack
+	asm                 *AssemblyProgram
+	hirProgram          *hir.Program
+	states              compileStateStack
+	constsDataIdMapping map[string]DataID
 }
 
 func NewCompiler(hirProgram *hir.Program) *Compiler {
@@ -77,20 +86,57 @@ func NewCompiler(hirProgram *hir.Program) *Compiler {
 		states: []*compileState{ // todo temp
 			newCompileState(),
 		},
+		constsDataIdMapping: make(map[string]DataID),
 	}
 }
 
 func (c *Compiler) Compile() *AssemblyProgram {
-	c.compileExpr(c.hirProgram.EntryFunc)
+	c.saveConsts()
+
+	// call entry function
+	entryFunc := c.hirProgram.EntryFunc()
+	c.asm.Emit(&AssemblyInstrPush{DataID: c.FindConst(entryFunc.Func.Name)})
+	c.asm.Emit(&AssemblyInstrCall{})
+
+	funcs := c.hirProgram.Funcs()
+	// save funcs to consts
+	for _, f := range funcs {
+		dataID := c.asm.Consts.insertConst(&hir.ValueFunc{
+			FuncName:  f.Func.Name,
+			MaxLoacls: 0, // MaxLocals compute after compile this func
+		})
+		c.constsDataIdMapping[f.Func.Name] = dataID
+	}
+
+	for _, f := range funcs {
+		c.compileExpr(f)
+	}
 	return c.asm
+}
+
+func (c *Compiler) saveConsts() {
+	for constName, cnst := range c.hirProgram.Consts() {
+		dataID := c.asm.Consts.insertConst(cnst)
+		c.constsDataIdMapping[constName] = dataID
+	}
+}
+
+func (c *Compiler) FindConst(name string) DataID {
+	return c.constsDataIdMapping[name]
 }
 
 func (c *Compiler) compileExpr(expr hir.Expr) {
 	switch e := expr.(type) {
 	case *hir.ExprLiteral:
-		c.asm.EmitPush(hirValueToVmValue(e.Val))
+		c.asm.EmitPush(e.Val)
 	case *hir.ExprVar:
-		instr := c.states.Last().LoadVar(e.VarBinding)
+		state := c.states.Last()
+		var instr AssemblyInstruction
+		if state.IsLocalVar(e.VarBinding) {
+			instr = c.states.Last().LoadVar(e.VarBinding)
+		} else {
+			instr = &AssemblyInstrPush{DataID: c.FindConst(e.VarBinding.Name)}
+		}
 		c.asm.Emit(instr)
 	case *hir.ExprMutate:
 		if variable, ok := e.Lhs.(*hir.ExprVar); ok {
@@ -113,12 +159,16 @@ func (c *Compiler) compileExpr(expr hir.Expr) {
 		c.asm.Emit(&AssemblyInstrCall{})
 	case *hir.ExprFunction:
 		c.states.Push(newCompileState())
+		c.asm.Label(e.Func.Name)
 		for _, arg := range e.Func.Args {
 			instr := c.states.Last().StoreVar(arg)
 			c.asm.Emit(instr)
 		}
 		c.compileExpr(e.Func.Body)
-		c.states.Pop()
+		state, _ := c.states.Pop()
+		cnst := c.asm.Consts.GetConst(c.FindConst(e.Func.Name)).(*hir.ValueFunc)
+		cnst.MaxLoacls = state.MaxLocals()
+		state.MaxLocals()
 	case *hir.ExprAnonFunction:
 		panic("unimplement!")
 	case *hir.ExprUnary:
@@ -217,23 +267,6 @@ func (l *LoopLabelStack) EndLoop() {
 func (l *LoopLabelStack) CurrentLabel() (loopStart, loopEnd string) {
 	label := (*l)[len(*l)-1]
 	return label.loopStart, label.loopEnd
-}
-
-func hirValueToVmValue(hirVal hir.Value) value.Value {
-	switch hv := hirVal.(type) {
-	case *hir.ValueInt:
-		return &value.Int{Val: hv.Val}
-	case *hir.ValueFloat:
-		return &value.Float{Val: hv.Val}
-	case *hir.ValueBoolean:
-		return &value.Boolean{Val: hv.Val}
-	case *hir.ValueString:
-		// todo vm value unsupport string
-		return &value.Char{Val: rune(hv.Val[0])}
-	case *hir.ValueNil:
-		return &value.Nil{}
-	}
-	return &value.Nil{}
 }
 
 func hirBinaryOpToAssemblyInstr(bop hir.BinaryOp) AssemblyInstruction {

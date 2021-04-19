@@ -2,7 +2,7 @@ package assembly
 
 import (
 	"errors"
-	"sometimes/vm/value"
+	"sometimes/hir"
 	"sync/atomic"
 )
 
@@ -53,7 +53,7 @@ func (ap *AssemblyProgram) EmitJF(label string) error {
 	return nil
 }
 
-func (ap *AssemblyProgram) EmitPush(val value.Value) {
+func (ap *AssemblyProgram) EmitPush(val hir.Value) {
 	dataID := ap.Consts.insertConst(val)
 	ap.Emit(&AssemblyInstrPush{DataID: dataID})
 }
@@ -64,13 +64,13 @@ func (ap *AssemblyProgram) Emit(assemblyInstr AssemblyInstruction) {
 
 type Consts struct {
 	dataID DataID
-	Inner  map[DataID]value.Value
+	Inner  map[DataID]hir.Value
 }
 
 func NewConsts() *Consts {
 	return &Consts{
 		dataID: 0,
-		Inner:  make(map[DataID]value.Value),
+		Inner:  make(map[DataID]hir.Value),
 	}
 }
 
@@ -80,9 +80,9 @@ func (c *Consts) fetchDataID() DataID {
 	return id
 }
 
-func (c *Consts) insertConst(val value.Value) DataID {
+func (c *Consts) insertConst(val hir.Value) DataID {
 	for dataID, data := range c.Inner {
-		if value.Equal(data, val) {
+		if hir.ValueEqual(data, val) {
 			return dataID
 		}
 	}
@@ -93,4 +93,8 @@ func (c *Consts) insertConst(val value.Value) DataID {
 
 func (c *Consts) MaxDataID() DataID {
 	return c.dataID
+}
+
+func (c *Consts) GetConst(dataID DataID) hir.Value {
+	return c.Inner[dataID]
 }

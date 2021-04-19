@@ -32,8 +32,9 @@ type (
 		Label string
 	}
 
-	AssemblyInstrCall struct{ Label string }
-	AssemblyInstrRet  struct{}
+	AssemblyInstrCall struct{}
+
+	AssemblyInstrRet struct{}
 
 	AssemblyInstrPush struct {
 		DataID DataID

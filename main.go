@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	hirBuilder := hir.NewFuncBuilder("main", []*hir.Binding{})
+	hirFuncBuilder := hir.NewFuncBuilder("main", []*hir.Binding{})
 	varA := &hir.ExprVar{
 		VarBinding: hir.NewBinding("a"),
 	}
@@ -18,7 +18,7 @@ func main() {
 		VarBinding: hir.NewBinding("c"),
 	}
 
-	hirBuilder.Emit(&hir.ExprMutate{
+	hirFuncBuilder.Emit(&hir.ExprMutate{
 		Lhs: varA,
 		Rhs: &hir.ExprBinary{
 			Lhs: &hir.ExprLiteral{Val: hir.NewValueInt(10)},
@@ -27,7 +27,7 @@ func main() {
 		},
 	})
 
-	hirBuilder.Emit(&hir.ExprMutate{
+	hirFuncBuilder.Emit(&hir.ExprMutate{
 		Lhs: varB,
 		Rhs: &hir.ExprBinary{
 			Lhs: &hir.ExprLiteral{Val: hir.NewValueInt(2)},
@@ -35,7 +35,7 @@ func main() {
 			Op:  hir.OpMul,
 		},
 	})
-	hirBuilder.Emit(&hir.ExprMutate{
+	hirFuncBuilder.Emit(&hir.ExprMutate{
 		Lhs: varC,
 		Rhs: &hir.ExprBinary{
 			Lhs: varA,
@@ -43,8 +43,10 @@ func main() {
 			Op:  hir.OpAdd,
 		},
 	})
-	hirProgram := hirBuilder.Build()
-	asmCompiler := assembly.NewCompiler(hirProgram)
+
+	hirBuilder := hir.NewBuilder()
+	hirBuilder.InsertFunc(hirFuncBuilder.Build(), true)
+	asmCompiler := assembly.NewCompiler(hirBuilder.Build())
 	asm := asmCompiler.Compile()
 	program := vm.NewProgramFromAsm(asm)
 	machine := vm.New(program, 256, 128)
