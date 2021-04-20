@@ -31,7 +31,7 @@ func (vm *VM) fetch() (ins Instruction, exist bool) {
 
 func (vm *VM) Execute() {
 	for ins, exist := vm.fetch(); exist; ins, exist = vm.fetch() {
-		fmt.Println(ins.Op(), ins)
+		fmt.Printf("op: %s, pc:%d\n", ins.Op().String(), vm.pc)
 		switch instr := ins.(type) {
 		case *InstrPush:
 			v, _ := vm.program.GetConst(instr.DataID)
@@ -65,15 +65,15 @@ func (vm *VM) Execute() {
 			v := vm.operandStack.Pop()
 			vm.frames.Top().Local.Store(instr.Offset, v)
 		case BinaryArithInstruction:
-			lhs := vm.operandStack.Pop()
 			rhs := vm.operandStack.Pop()
+			lhs := vm.operandStack.Pop()
 			vm.operandStack.Push(arith(instr, lhs, rhs))
 		case UnaryArithInstruction:
 			x := vm.operandStack.Pop()
 			vm.operandStack.Push(arith(instr, x, &value.Nil{}))
 		case BinaryLogicInstruction:
-			lhs := vm.operandStack.Pop()
 			rhs := vm.operandStack.Pop()
+			lhs := vm.operandStack.Pop()
 			vm.operandStack.Push(&value.Boolean{Val: logic(instr, lhs, rhs)})
 		case UnaryLogicInstruction:
 			x := vm.operandStack.Pop()

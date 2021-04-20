@@ -132,6 +132,7 @@ func init() {
 	gob.RegisterName("sometimes/vm.InstrAnd", &InstrAnd{})
 	gob.RegisterName("sometimes/vm.InstrOr", &InstrOr{})
 	gob.RegisterName("sometimes/vm.InstrJmp", &InstrJmp{})
+	gob.RegisterName("sometimes/vm.InstrJF", &InstrJF{})
 	gob.RegisterName("sometimes/vm.InstrCall", &InstrCall{})
 	gob.RegisterName("sometimes/vm.InstrRet", &InstrRet{})
 	gob.RegisterName("sometimes/vm.InstrPush", &InstrPush{})

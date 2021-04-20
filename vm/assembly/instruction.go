@@ -1,9 +1,12 @@
 package assembly
 
+import "fmt"
+
 type DataID = uint32
 
 type AssemblyInstruction interface {
 	isAssemblyInstruction()
+	String() string
 }
 
 type (
@@ -70,3 +73,26 @@ func (*AssemblyInstrRet) isAssemblyInstruction()   {}
 func (*AssemblyInstrPush) isAssemblyInstruction()  {}
 func (*AssemblyInstrLoad) isAssemblyInstruction()  {}
 func (*AssemblyInstrStore) isAssemblyInstruction() {}
+
+func (*AssemblyInstrAdd) String() string     { return "Add" }
+func (*AssemblyInstrSub) String() string     { return "Sub" }
+func (*AssemblyInstrMul) String() string     { return "Mul" }
+func (*AssemblyInstrDiv) String() string     { return "Div" }
+func (*AssemblyInstrMod) String() string     { return "Mod" }
+func (*AssemblyInstrNeg) String() string     { return "Neg" }
+func (*AssemblyInstrEq) String() string      { return "Eq" }
+func (*AssemblyInstrNE) String() string      { return "NE" }
+func (*AssemblyInstrGT) String() string      { return "GT" }
+func (*AssemblyInstrLT) String() string      { return "LT" }
+func (*AssemblyInstrGTE) String() string     { return "GTE" }
+func (*AssemblyInstrLTE) String() string     { return "LTE" }
+func (*AssemblyInstrNot) String() string     { return "Not" }
+func (*AssemblyInstrAnd) String() string     { return "And" }
+func (*AssemblyInstrOr) String() string      { return "Or" }
+func (jmp *AssemblyInstrJmp) String() string { return fmt.Sprintf("Jmp %s", jmp.Label) }
+func (jf *AssemblyInstrJF) String() string   { return fmt.Sprintf("JF %s", jf.Label) }
+func (*AssemblyInstrCall) String() string    { return "Call" }
+func (*AssemblyInstrRet) String() string     { return "Ret" }
+func (p *AssemblyInstrPush) String() string  { return fmt.Sprintf("Push @%d", p.DataID) }
+func (l *AssemblyInstrLoad) String() string  { return fmt.Sprintf("Load %d", l.Offset) }
+func (s *AssemblyInstrStore) String() string { return fmt.Sprintf("Store %d", s.Offset) }

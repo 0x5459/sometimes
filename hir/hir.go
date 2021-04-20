@@ -75,7 +75,6 @@ func (b *Builder) Build() *Program {
 		panic("empty program")
 	}
 	entryFuncName = (b.Funcs[b.EntryFuncIdx]).Func.Name
-
 	return &Program{
 		funcs:         funcs,
 		entryFuncName: entryFuncName,

@@ -86,7 +86,7 @@ func (n *Nil) String() string {
 }
 
 func (f *Func) String() string {
-	return fmt.Sprintf("Func @%d", f.Addr)
+	return fmt.Sprintf("Func #%d", f.Addr)
 }
 
 func init() {

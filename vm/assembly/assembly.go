@@ -3,6 +3,8 @@ package assembly
 import (
 	"errors"
 	"sometimes/hir"
+	"strconv"
+	"strings"
 	"sync/atomic"
 )
 
@@ -60,6 +62,40 @@ func (ap *AssemblyProgram) EmitPush(val hir.Value) {
 
 func (ap *AssemblyProgram) Emit(assemblyInstr AssemblyInstruction) {
 	ap.Instructions = append(ap.Instructions, assemblyInstr)
+}
+
+func (ap *AssemblyProgram) String() string {
+	/**
+	type AssemblyProgram struct {
+		Labels       map[string]Ptr
+		Consts       *Consts
+		Instructions []AssemblyInstruction
+	}
+	*/
+	var sb strings.Builder
+
+	for dataID, data := range ap.Consts.Inner {
+		sb.WriteRune('@')
+		sb.WriteString(strconv.Itoa(int(dataID)))
+		sb.WriteString(" = ")
+		sb.WriteString(data.String())
+		sb.WriteRune('\n')
+	}
+
+	sb.WriteRune('\n')
+	labels := make(map[Ptr]string, len(ap.Labels))
+	for label, addr := range ap.Labels {
+		labels[addr] = label
+	}
+	for addr, instr := range ap.Instructions {
+		if label, ok := labels[addr]; ok {
+			sb.WriteString(label)
+			sb.WriteString(":\n")
+		}
+		sb.WriteString(instr.String())
+		sb.WriteRune('\n')
+	}
+	return sb.String()
 }
 
 type Consts struct {

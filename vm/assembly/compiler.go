@@ -72,7 +72,7 @@ func (s *compileStateStack) Pop() (cs *compileState, isExist bool) {
 /// Compile hir to assembly
 type Compiler struct {
 	labelGen            *LabelGen
-	loopLabelStack      *LoopLabelStack
+	loopLabelStack      LoopLabelStack
 	asm                 *AssemblyProgram
 	hirProgram          *hir.Program
 	states              compileStateStack
@@ -94,11 +94,6 @@ func NewCompiler(hirProgram *hir.Program) *Compiler {
 func (c *Compiler) Compile() *AssemblyProgram {
 	c.saveConsts()
 
-	// call entry function
-	entryFunc := c.hirProgram.EntryFunc()
-	c.asm.Emit(&AssemblyInstrPush{DataID: c.FindConst(entryFunc.Func.Name)})
-	c.asm.Emit(&AssemblyInstrCall{})
-
 	funcs := c.hirProgram.Funcs()
 	// save funcs to consts
 	for _, f := range funcs {
@@ -108,6 +103,11 @@ func (c *Compiler) Compile() *AssemblyProgram {
 		})
 		c.constsDataIdMapping[f.Func.Name] = dataID
 	}
+
+	// call entry function
+	entryFunc := c.hirProgram.EntryFunc()
+	c.asm.Emit(&AssemblyInstrPush{DataID: c.FindConst(entryFunc.Func.Name)})
+	c.asm.Emit(&AssemblyInstrCall{})
 
 	for _, f := range funcs {
 		c.compileExpr(f)
@@ -154,8 +154,8 @@ func (c *Compiler) compileExpr(expr hir.Expr) {
 		c.compileExpr(e.Rhs)
 		c.asm.Emit(hirBinaryOpToAssemblyInstr(e.Op))
 	case *hir.ExprCall:
-		for _, arg := range e.Args {
-			c.compileExpr(arg)
+		for i := len(e.Args) - 1; i >= 0; i-- {
+			c.compileExpr(e.Args[i])
 		}
 		c.compileExpr(e.Callee)
 		c.asm.Emit(&AssemblyInstrCall{})
@@ -210,6 +210,7 @@ func (c *Compiler) compileExpr(expr hir.Expr) {
 		c.compileExpr(e.Cond)
 		c.asm.Emit(&AssemblyInstrJF{Label: loopEndLabel})
 		c.compileExpr(e.Body)
+		c.asm.Emit(&AssemblyInstrJmp{Label: loopStartLabel})
 		c.asm.Label(loopEndLabel)
 		c.loopLabelStack.EndLoop()
 	case *hir.ExprBlock:
