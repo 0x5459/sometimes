@@ -13,11 +13,13 @@ func _() {
 	_ = x[TypeBoolean-2]
 	_ = x[TypeChar-3]
 	_ = x[TypeNil-4]
+	_ = x[TypeFunc-5]
+	_ = x[TypePointer-6]
 }
 
-const _Type_name = "IntFloatBooleanCharNil"
+const _Type_name = "IntFloatBooleanCharNilFuncPointer"
 
-var _Type_index = [...]uint8{0, 3, 8, 15, 19, 22}
+var _Type_index = [...]uint8{0, 3, 8, 15, 19, 22, 26, 33}
 
 func (i Type) String() string {
 	if i >= Type(len(_Type_index)-1) {

@@ -10,9 +10,10 @@ import (
 func main() {
 
 	hirBuilder := hir.NewBuilder()
-	hirBuilder.InsertFunc(funcMain(), true)
-	hirBuilder.InsertFunc(funcTest(), false)
-	hirBuilder.InsertFunc(funcSum(), false)
+	// hirBuilder.InsertFunc(funcMain(), true)
+	// hirBuilder.InsertFunc(funcTest(), false)
+	// hirBuilder.InsertFunc(funcSum(), false)
+	hirBuilder.InsertFunc(funcArray(), true)
 	asmCompiler := assembly.NewCompiler(hirBuilder.Build())
 	asm := asmCompiler.Compile()
 	fmt.Println(asm.String())
@@ -156,5 +157,20 @@ func funcSum() *hir.ExprFunction {
 	})
 
 	hirFuncBuilder.Emit(&hir.ExprReturn{Expr: varS})
+	return hirFuncBuilder.Build()
+}
+
+func funcArray() *hir.ExprFunction {
+	hirFuncBuilder := hir.NewFuncBuilder("arr", []*hir.Binding{})
+	varArr := &hir.ExprVar{VarBinding: hir.NewBindingWithLen("arr", 4)}
+	hirFuncBuilder.Emit(&hir.ExprArray{
+		Arr: varArr,
+		Exprs: []hir.Expr{
+			&hir.ExprLiteral{Val: hir.NewValueInt(10)},
+			&hir.ExprLiteral{Val: hir.NewValueInt(20)},
+			&hir.ExprLiteral{Val: hir.NewValueInt(30)},
+			&hir.ExprLiteral{Val: hir.NewValueInt(40)},
+		},
+	})
 	return hirFuncBuilder.Build()
 }

@@ -36,6 +36,9 @@ func (vm *VM) Execute() {
 		case *InstrPush:
 			v, _ := vm.program.GetConst(instr.DataID)
 			vm.operandStack.Push(v)
+		case *InstrDup:
+			v := vm.operandStack.TopValue()
+			vm.operandStack.Push(v.Clone())
 		case *InstrJmp:
 			vm.pc = instr.Addr
 		case *InstrJF:
@@ -64,6 +67,25 @@ func (vm *VM) Execute() {
 		case *InstrStore:
 			v := vm.operandStack.Pop()
 			vm.frames.Top().Local.Store(instr.Offset, v)
+		case *InstrLoadPtr:
+			vm.operandStack.Push(&value.Pointer{
+				Addr:    instr.Offset,
+				IsLocal: instr.IsLocal,
+			})
+		case *InstrLoadFromPtr:
+			ptr := vm.operandStack.Pop().(*value.Pointer)
+			if !ptr.IsLocal {
+				panic("unimplement")
+			}
+			v := vm.frames.Top().Local.Load(ptr.Addr)
+			vm.operandStack.Push(v)
+		case *InstrStoreToPtr:
+			v := vm.operandStack.Pop()
+			ptr := vm.operandStack.Pop().(*value.Pointer)
+			if !ptr.IsLocal {
+				panic("unimplement")
+			}
+			vm.frames.Top().Local.Store(ptr.Addr, v)
 		case BinaryArithInstruction:
 			rhs := vm.operandStack.Pop()
 			lhs := vm.operandStack.Pop()

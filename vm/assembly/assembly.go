@@ -65,13 +65,7 @@ func (ap *AssemblyProgram) Emit(assemblyInstr AssemblyInstruction) {
 }
 
 func (ap *AssemblyProgram) String() string {
-	/**
-	type AssemblyProgram struct {
-		Labels       map[string]Ptr
-		Consts       *Consts
-		Instructions []AssemblyInstruction
-	}
-	*/
+
 	var sb strings.Builder
 
 	for dataID, data := range ap.Consts.Inner {

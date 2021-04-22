@@ -51,6 +51,20 @@ func (*InstrMod) isBinaryArith() {}
 func (*InstrNeg) isUnaryArith()  {}
 
 func arith(op ArithInstruction, x, y value.Value) value.Value {
+	if ptr, xIsPtr := x.(*value.Pointer); xIsPtr {
+		if offset, yIsInt := y.(*value.Int); yIsInt {
+			switch op.Op() {
+			case OpAdd:
+				ptr.Addr += offset.Val
+				return ptr
+			case OpSub:
+				ptr.Addr -= offset.Val
+				return ptr
+			}
+		}
+		panic(unsupportedOperandError(op.Op(), x, y))
+	}
+
 	_, xIsNumber := x.(value.NumberValue)
 	_, yIsNumber := y.(value.NumberValue)
 	if !(xIsNumber && yIsNumber) {

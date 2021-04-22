@@ -38,9 +38,14 @@ const (
 	OpRet // return
 
 	OpPush
+	OpDup
 
 	OpLoad  // Push a copy of the local with the given offset on to the stack
 	OpStore // Store value of stack top to local with the given offset
+
+	OpLoadPtr
+	OpLoadFromPtr
+	OpStoreToPtr
 )
 
 // Instruction is one instruction executed by the vm
@@ -82,38 +87,51 @@ type (
 	InstrPush struct {
 		DataID DataID
 	}
+	InstrDup struct{}
 
 	InstrLoad struct {
 		Offset int
 	}
 
+	InstrLoadPtr struct {
+		Offset  int
+		IsLocal bool
+	}
+
 	InstrStore struct {
 		Offset int
 	}
+
+	InstrLoadFromPtr struct{}
+	InstrStoreToPtr  struct{}
 )
 
-func (*InstrAdd) Op() Op   { return OpAdd }
-func (*InstrSub) Op() Op   { return OpSub }
-func (*InstrMul) Op() Op   { return OpMul }
-func (*InstrDiv) Op() Op   { return OpDiv }
-func (*InstrMod) Op() Op   { return OpMod }
-func (*InstrNeg) Op() Op   { return OpNeg }
-func (*InstrEq) Op() Op    { return OpEq }
-func (*InstrNE) Op() Op    { return OpNE }
-func (*InstrGT) Op() Op    { return OpGT }
-func (*InstrLT) Op() Op    { return OpLT }
-func (*InstrGTE) Op() Op   { return OpGTE }
-func (*InstrLTE) Op() Op   { return OpLTE }
-func (*InstrNot) Op() Op   { return OpNot }
-func (*InstrAnd) Op() Op   { return OpAnd }
-func (*InstrOr) Op() Op    { return OpOr }
-func (*InstrJmp) Op() Op   { return OpJmp }
-func (*InstrJF) Op() Op    { return OpJF }
-func (*InstrCall) Op() Op  { return OpCall }
-func (*InstrRet) Op() Op   { return OpRet }
-func (*InstrPush) Op() Op  { return OpPush }
-func (*InstrLoad) Op() Op  { return OpLoad }
-func (*InstrStore) Op() Op { return OpStore }
+func (*InstrAdd) Op() Op         { return OpAdd }
+func (*InstrSub) Op() Op         { return OpSub }
+func (*InstrMul) Op() Op         { return OpMul }
+func (*InstrDiv) Op() Op         { return OpDiv }
+func (*InstrMod) Op() Op         { return OpMod }
+func (*InstrNeg) Op() Op         { return OpNeg }
+func (*InstrEq) Op() Op          { return OpEq }
+func (*InstrNE) Op() Op          { return OpNE }
+func (*InstrGT) Op() Op          { return OpGT }
+func (*InstrLT) Op() Op          { return OpLT }
+func (*InstrGTE) Op() Op         { return OpGTE }
+func (*InstrLTE) Op() Op         { return OpLTE }
+func (*InstrNot) Op() Op         { return OpNot }
+func (*InstrAnd) Op() Op         { return OpAnd }
+func (*InstrOr) Op() Op          { return OpOr }
+func (*InstrJmp) Op() Op         { return OpJmp }
+func (*InstrJF) Op() Op          { return OpJF }
+func (*InstrCall) Op() Op        { return OpCall }
+func (*InstrRet) Op() Op         { return OpRet }
+func (*InstrPush) Op() Op        { return OpPush }
+func (*InstrDup) Op() Op         { return OpDup }
+func (*InstrLoad) Op() Op        { return OpLoad }
+func (*InstrStore) Op() Op       { return OpStore }
+func (*InstrLoadPtr) Op() Op     { return OpLoadPtr }
+func (*InstrLoadFromPtr) Op() Op { return OpLoadFromPtr }
+func (*InstrStoreToPtr) Op() Op  { return OpStoreToPtr }
 
 func init() {
 	gob.RegisterName("sometimes/vm.InstrAdd", &InstrAdd{})
@@ -136,6 +154,10 @@ func init() {
 	gob.RegisterName("sometimes/vm.InstrCall", &InstrCall{})
 	gob.RegisterName("sometimes/vm.InstrRet", &InstrRet{})
 	gob.RegisterName("sometimes/vm.InstrPush", &InstrPush{})
+	gob.RegisterName("sometimes/vm.InstrDup", &InstrDup{})
 	gob.RegisterName("sometimes/vm.InstrLoad", &InstrLoad{})
 	gob.RegisterName("sometimes/vm.InstrStore", &InstrStore{})
+	gob.RegisterName("sometimes/vm.InstrLoadPtr", &InstrLoadPtr{})
+	gob.RegisterName("sometimes/vm.InstrLoadFromPtr", &InstrLoadFromPtr{})
+	gob.RegisterName("sometimes/vm.InstrStoreToPtr", &InstrStoreToPtr{})
 }

@@ -67,3 +67,7 @@ func (s *OperandStack) Get(idx int) value.Value {
 func (s *OperandStack) TopIdx() Ptr {
 	return s.top
 }
+
+func (s *OperandStack) TopValue() value.Value {
+	return s.Get(s.top - 1)
+}

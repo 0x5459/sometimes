@@ -72,6 +72,18 @@ func NewProgramFromAsm(asm *assembly.AssemblyProgram) *Program {
 			instrs[i] = &InstrLoad{Offset: asmInstr.Offset}
 		case *assembly.AssemblyInstrStore:
 			instrs[i] = &InstrStore{Offset: asmInstr.Offset}
+		case *assembly.AssemblyInstrDup:
+			instrs[i] = &InstrDup{}
+		case *assembly.AssemblyInstrLoadFromPtr:
+			instrs[i] = &InstrLoadFromPtr{}
+		case *assembly.AssemblyInstrLoadPtr:
+			instrs[i] = &InstrLoadPtr{
+				Offset:  asmInstr.Offset,
+				IsLocal: asmInstr.IsLocal,
+			}
+		case *assembly.AssemblyInstrStoreToPtr:
+			instrs[i] = &InstrStoreToPtr{}
+
 		}
 	}
 

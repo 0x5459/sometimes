@@ -14,13 +14,20 @@ type (
 		StartPos() Pos
 		EndPos() Pos
 	}
-	baseNode struct {
+	BaseNode struct {
 		startPos, endPos Pos
 	}
 )
 
-func (bn *baseNode) StartPos() Pos { return bn.startPos }
-func (bn *baseNode) EndPos() Pos   { return bn.endPos }
+func (bn *BaseNode) StartPos() Pos { return bn.startPos }
+func (bn *BaseNode) EndPos() Pos   { return bn.endPos }
+
+func NewBaseNode(startPos, endPos Pos) *BaseNode {
+	return &BaseNode{
+		startPos: startPos,
+		endPos:   endPos,
+	}
+}
 
 type (
 	Type interface {
@@ -36,7 +43,7 @@ type (
 
 	// age int , struct { age int, }
 	FieldDef struct {
-		ident Ident
+		Ident Ident
 		Type  Type
 	}
 )
@@ -51,93 +58,93 @@ type (
 		exprNode()
 	}
 
-	baseExpr struct {
-		*baseNode
+	BaseExpr struct {
+		*BaseNode
 	}
 
 	Ident struct {
-		*baseNode
+		*BaseNode
 		Name string
 	}
 
 	Literal struct {
-		baseExpr
+		*BaseExpr
 		Kind token.Kind // token.INT_LITERAL, token.FLOAT_LITERAL, token.CHAR_LITERAL, token.STRING_LITERAL
 		Val  string     // 123, 3.14, 'a', "我的"
 	}
 
 	// (1+1), ...
 	ParenExpr struct {
-		baseExpr
-		inner Expr // 1+1
+		*BaseExpr
+		Inner Expr // 1+1
 	}
 
 	// arr[2+2], ...
 	IndexExpr struct {
-		baseExpr
+		*BaseExpr
 		Addr  Ident // arr
-		index Expr  // 2+2
+		Index Expr  // 2+2
 	}
 
 	// [1+1, a(), 11], ...
 	ArrayExpr struct {
-		baseExpr
+		*BaseExpr
 		Element []Expr
 	}
 
 	// say(1+1, 99), ...
 	CallExpr struct {
-		baseExpr
+		*BaseExpr
 		Func Expr
 		Args []Expr
 	}
 
 	// !b, ...
 	UnaryExpr struct {
-		baseExpr
+		*BaseExpr
 		Op   token.Token // !
 		Expr Expr        // b
 	}
 
 	// 1+1, ...
 	BinaryExpr struct {
-		baseExpr
+		*BaseExpr
 		Lhs, Rhs Expr
-		Op       token.Token
+		Op       *token.Token
 	}
 
 	// a = 10, ...
 	AssignExpr struct {
-		baseExpr
+		*BaseExpr
 		Lhs, Rhs Expr
 	}
 
 	// return 1+1, ...
 	ReturnExpr struct {
-		baseExpr
+		*BaseExpr
 		Ret Expr
 	}
 
 	// break 1+1, ...
 	BreakExpr struct {
-		baseExpr
+		*BaseExpr
 		Expr Expr // optional
 	}
 
 	// continue
 	ContinueExpr struct {
-		baseExpr
+		*BaseExpr
 	}
 
 	// { a = 1+1; b = 2+2; }
 	BlockExpr struct {
-		baseExpr
+		*BaseExpr
 		ExprList []Expr
 	}
 
 	// if Cond { Body } else { Else }
 	IfExpr struct {
-		baseExpr
+		*BaseExpr
 		Cond Expr // condition
 		Body Expr
 		Else Expr // else expr; optional
@@ -145,37 +152,37 @@ type (
 
 	// loop (Cond) { Body }
 	LoopExpr struct {
-		baseExpr
+		*BaseExpr
 		Cond Expr // condition; optional
 		Body BlockExpr
 	}
 
 	// let (a = 10, b=20, 1+1), ...
 	LetExpr struct {
-		baseExpr
+		*BaseExpr
 		Decls    []ValueDecl
 		LastExpr Expr // optional
 	}
 
-	// const (A=10, B=1+1)
-	ConstExpr struct {
-		baseExpr
-		Decls []ValueDecl
-	}
-
-	// type (
-	//   a = 100,
-	//   Person struct {
-	//      age int,
-	//   }
-	//)
-	TypeExpr struct {
-		baseExpr
-		Decls []TypeDecl
-	}
+	// // type (
+	// //   a = 100,
+	// //   Person struct {
+	// //      age int,
+	// //   }
+	// //)
+	// TypeExpr struct {
+	// 	baseExpr
+	// 	Decls []TypeDecl
+	// }
 )
 
-func (baseNode) exprNode() {}
+func (BaseNode) exprNode() {}
+
+func NewBaseExpr(startPos, endPos Pos) *BaseExpr {
+	return &BaseExpr{
+		BaseNode: NewBaseNode(startPos, endPos),
+	}
+}
 
 // declares
 type (
@@ -186,9 +193,18 @@ type (
 	}
 )
 
+// const (A=10, B=1+1)
+type ConstDecl struct {
+	BaseNode
+	Decls []ValueDecl
+}
+
+func (cd *ConstDecl) StartPos() Pos { return cd.startPos }
+func (cd *ConstDecl) EndPos() Pos   { return cd.endPos }
+
 // fn f(n int) -> int { xxx }
 type FnDecl struct {
-	baseNode
+	BaseNode
 	Args []FieldDef
 	Ret  Type
 	Body BlockExpr

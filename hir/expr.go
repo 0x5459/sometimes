@@ -7,6 +7,7 @@ const (
 	ExprTypeLiteral ExprType = iota
 	ExprTypeConst            // decl const
 	ExprTypeVar              // access binding
+	ExprTypeBinding
 	ExprTypeMutate
 	ExprTypeBinary
 	ExprTypeCall
@@ -19,6 +20,8 @@ const (
 	ExprTypeBlock
 	ExprTypeBreak
 	ExprTypeContinue
+	ExprTypeArray
+	ExprTypeSetElement
 )
 
 type Expr interface {
@@ -34,6 +37,11 @@ type (
 
 	ExprVar struct {
 		VarBinding *Binding
+	}
+
+	ExprBinding struct {
+		Binding *Binding
+		Rhs     Expr
 	}
 
 	// like `a = a + 1`
@@ -88,10 +96,20 @@ type (
 	}
 
 	ExprContinue struct{}
+
+	ExprArray struct {
+		Arr   *ExprVar
+		Exprs []Expr
+	}
+
+	ExprSetElement struct {
+		ArrayAddr, Index, Value Expr
+	}
 )
 
 func (*ExprLiteral) ExprType() ExprType      { return ExprTypeLiteral }
 func (*ExprVar) ExprType() ExprType          { return ExprTypeVar }
+func (*ExprBinding) ExprType() ExprType      { return ExprTypeBinding }
 func (*ExprMutate) ExprType() ExprType       { return ExprTypeMutate }
 func (*ExprBinary) ExprType() ExprType       { return ExprTypeBinary }
 func (*ExprCall) ExprType() ExprType         { return ExprTypeCall }
@@ -104,3 +122,5 @@ func (*ExprLoop) ExprType() ExprType         { return ExprTypeLoop }
 func (*ExprBlock) ExprType() ExprType        { return ExprTypeBlock }
 func (*ExprBreak) ExprType() ExprType        { return ExprTypeBreak }
 func (*ExprContinue) ExprType() ExprType     { return ExprTypeContinue }
+func (*ExprArray) ExprType() ExprType        { return ExprTypeArray }
+func (*ExprSetElement) ExprType() ExprType   { return ExprTypeSetElement }

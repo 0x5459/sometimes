@@ -23,7 +23,7 @@ func (cs *compileState) StoreVar(b *hir.Binding) *AssemblyInstrStore {
 	if !ok {
 		localIdx = cs.localIdx
 		cs.locals[b.Name] = localIdx
-		cs.localIdx++
+		cs.localIdx += b.Len
 	}
 	return &AssemblyInstrStore{Offset: localIdx}
 
@@ -38,8 +38,12 @@ func (cs *compileState) LoadVar(b *hir.Binding) *AssemblyInstrLoad {
 	return &AssemblyInstrLoad{Offset: cs.locals[b.Name]}
 }
 
+func (cs *compileState) LoadVarPtr(b *hir.Binding) *AssemblyInstrLoadPtr {
+	return &AssemblyInstrLoadPtr{Offset: cs.locals[b.Name], IsLocal: true}
+}
+
 func (cs *compileState) MaxLocals() int {
-	return len(cs.locals)
+	return cs.localIdx
 }
 
 type compileStateStack []*compileState
@@ -130,6 +134,10 @@ func (c *Compiler) compileExpr(expr hir.Expr) {
 	switch e := expr.(type) {
 	case *hir.ExprLiteral:
 		c.asm.EmitPush(e.Val)
+	case *hir.ExprBinding:
+		c.compileExpr(e.Rhs)
+		instr := c.states.Last().StoreVar(e.Binding)
+		c.asm.Emit(instr)
 	case *hir.ExprVar:
 		state := c.states.Last()
 		var instr AssemblyInstruction
@@ -140,15 +148,14 @@ func (c *Compiler) compileExpr(expr hir.Expr) {
 		}
 		c.asm.Emit(instr)
 	case *hir.ExprMutate:
+		c.compileExpr(e.Rhs)
 		if variable, ok := e.Lhs.(*hir.ExprVar); ok {
-			c.compileExpr(e.Rhs)
-
 			instr := c.states.Last().StoreVar(variable.VarBinding)
 			c.asm.Emit(instr)
 		} else {
-			panic("mutate non-variable")
+			c.compileExpr(e.Lhs)
+			c.asm.Emit(&AssemblyInstrStoreToPtr{})
 		}
-
 	case *hir.ExprBinary:
 		c.compileExpr(e.Lhs)
 		c.compileExpr(e.Rhs)
@@ -170,7 +177,6 @@ func (c *Compiler) compileExpr(expr hir.Expr) {
 		state, _ := c.states.Pop()
 		cnst := c.asm.Consts.GetConst(c.FindConst(e.Func.Name)).(*hir.ValueFunc)
 		cnst.MaxLoacls = state.MaxLocals()
-		state.MaxLocals()
 	case *hir.ExprAnonFunction:
 		panic("unimplement!")
 	case *hir.ExprUnary:
@@ -224,6 +230,28 @@ func (c *Compiler) compileExpr(expr hir.Expr) {
 	case *hir.ExprContinue:
 		loopStartLabel, _ := c.loopLabelStack.CurrentLabel()
 		c.asm.Emit(&AssemblyInstrJmp{Label: loopStartLabel})
+	case *hir.ExprArray:
+		state := c.states.Last()
+		if !state.IsLocalVar(e.Arr.VarBinding) {
+			state.StoreVar(e.Arr.VarBinding)
+		}
+		c.asm.Emit(state.LoadVarPtr(e.Arr.VarBinding))
+		// c.asm.EmitPush(hir.NewValueInt(len(e.Exprs)))
+		for i, x := range e.Exprs {
+			if i != len(e.Exprs)-1 {
+				c.asm.Emit(&AssemblyInstrDup{})
+			}
+			c.asm.EmitPush(hir.NewValueInt(i)) // offset
+			c.asm.Emit(&AssemblyInstrAdd{})
+			c.compileExpr(x)
+			c.asm.Emit(&AssemblyInstrStoreToPtr{})
+		}
+	case *hir.ExprSetElement:
+		c.compileExpr(e.Value)
+		c.compileExpr(e.ArrayAddr)
+		c.compileExpr(e.Index)
+		c.asm.Emit(&AssemblyInstrAdd{})
+		c.asm.Emit(&AssemblyInstrStoreToPtr{})
 	}
 }
 
