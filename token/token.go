@@ -108,7 +108,7 @@ const (
 
 	DEFAULT
 	ELSE
-	FOR
+	LOOP
 
 	FN
 	IF
@@ -210,7 +210,7 @@ var (
 
 		DEFAULT: "default",
 		ELSE:    "else",
-		FOR:     "for",
+		LOOP:    "loop",
 
 		FN:     "func",
 		IF:     "if",
