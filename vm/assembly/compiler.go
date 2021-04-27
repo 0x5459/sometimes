@@ -142,7 +142,7 @@ func (c *Compiler) compileExpr(expr hir.Expr) {
 		state := c.states.Last()
 		var instr AssemblyInstruction
 		if state.IsLocalVar(e.VarBinding) {
-			instr = c.states.Last().LoadVar(e.VarBinding)
+			instr = state.LoadVar(e.VarBinding)
 		} else {
 			instr = &AssemblyInstrPush{DataID: c.FindConst(e.VarBinding.Name)}
 		}

@@ -96,7 +96,7 @@ func (p *Parser) parseExpr() ast.Expr {
 		return p.parseBreakExpr()
 	case token.CONTINUE:
 		return p.parseContinueExpr()
-	case token.LBRACK:
+	case token.LBRACK: // '['
 		return p.parseArrayExpr()
 	default:
 		return p.parseBinaryExpr(token.LowestPrec + 1)
@@ -384,7 +384,7 @@ func (p *Parser) parseIdent() *ast.Ident {
 }
 
 func (p *Parser) error(pos token.Pos, msg string) {
-	panic(fmt.Errorf("-> line %d, column %d\n%s", pos.Line(), pos.Col(), msg))
+	panic(fmt.Errorf("-> line %d, column %d\n%s", pos.Line(), pos.Col()+1, msg))
 }
 
 func (p *Parser) errorExpect(expected string) {

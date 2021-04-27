@@ -212,7 +212,7 @@ var (
 		ELSE:    "else",
 		LOOP:    "loop",
 
-		FN:     "func",
+		FN:     "fn",
 		IF:     "if",
 		IMPORT: "import",
 
