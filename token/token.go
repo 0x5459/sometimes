@@ -48,11 +48,12 @@ const (
 	literal_beg
 	// Identifiers and basic type literals
 	// (these tokens stand for classes of literals)
-	IDENT          // main
-	INT_LITERAL    // 12345
-	FLOAT_LITERAL  // 123.45
-	CHAR_LITERAL   // 'a'
-	STRING_LITERAL // "abc"
+	IDENT           // main
+	INT_LITERAL     // 12345
+	FLOAT_LITERAL   // 123.45
+	CHAR_LITERAL    // 'a'
+	STRING_LITERAL  // "abc"
+	BOOLEAN_LITERAL // true or false
 	literal_end
 
 	operator_beg
@@ -120,6 +121,8 @@ const (
 	SWITCH
 	TYPE
 	LET
+	TRUE
+	FALSE
 	keyword_end
 )
 
@@ -222,6 +225,9 @@ var (
 		SWITCH: "switch",
 		TYPE:   "type",
 		LET:    "let",
+
+		TRUE:  "true",
+		FALSE: "false",
 	}
 
 	keywords  = make(map[string]Kind)

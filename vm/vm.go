@@ -31,8 +31,15 @@ func (vm *VM) fetch() (ins Instruction, exist bool) {
 
 func (vm *VM) Execute() {
 	for ins, exist := vm.fetch(); exist; ins, exist = vm.fetch() {
-		fmt.Printf("op: %s, pc:%d\n", ins.Op().String(), vm.pc)
+		// fmt.Printf("op: %s, pc:%d\n", ins.Op().String(), vm.pc)
+		// vm.PrintOperandStack()
 		switch instr := ins.(type) {
+		case *InstrPrint:
+			for i := 0; i < instr.ArgLen; i++ {
+				v := vm.operandStack.Pop()
+				fmt.Print(v.String() + " ")
+			}
+			fmt.Println()
 		case *InstrPush:
 			v, _ := vm.program.GetConst(instr.DataID)
 			vm.operandStack.Push(v)
@@ -101,7 +108,6 @@ func (vm *VM) Execute() {
 			x := vm.operandStack.Pop()
 			vm.operandStack.Push(&value.Boolean{Val: logic(instr, x, &value.Nil{})})
 		}
-		vm.PrintOperandStack()
 	}
 
 }

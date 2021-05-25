@@ -169,11 +169,29 @@ func logic(op LogicInstruction, x, y value.Value) bool {
 func _eq(x, y value.Value) bool {
 	switch a := x.(type) {
 	case (*value.Int):
+		switch b := y.(type) {
+		case (*value.Int):
+			return a.Val == b.Val
+		case (*value.Float):
+			return float64(a.Val) == b.Val
+		case (*value.Char):
+			return a.Val == int(b.Val)
+		}
 	case (*value.Float):
+		switch b := y.(type) {
+		case (*value.Int):
+			return a.Val == float64(b.Val)
+		case (*value.Float):
+			return a.Val == b.Val
+		case (*value.Char):
+			return a.Val == float64(b.Val)
+		}
 	case (*value.Char):
 		switch b := y.(type) {
 		case (*value.Int):
+			return int(a.Val) == b.Val
 		case (*value.Float):
+			return float64(a.Val) == b.Val
 		case (*value.Char):
 			return a.Val == b.Val
 		}

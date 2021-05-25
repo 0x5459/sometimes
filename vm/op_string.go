@@ -27,22 +27,23 @@ func _() {
 	_ = x[OpAnd-16]
 	_ = x[OpOr-17]
 	_ = x[op_logic_end-18]
-	_ = x[OpJmp-19]
-	_ = x[OpJF-20]
-	_ = x[OpCall-21]
-	_ = x[OpRet-22]
-	_ = x[OpPush-23]
-	_ = x[OpDup-24]
-	_ = x[OpLoad-25]
-	_ = x[OpStore-26]
-	_ = x[OpLoadPtr-27]
-	_ = x[OpLoadFromPtr-28]
-	_ = x[OpStoreToPtr-29]
+	_ = x[OpPrint-19]
+	_ = x[OpJmp-20]
+	_ = x[OpJF-21]
+	_ = x[OpCall-22]
+	_ = x[OpRet-23]
+	_ = x[OpPush-24]
+	_ = x[OpDup-25]
+	_ = x[OpLoad-26]
+	_ = x[OpStore-27]
+	_ = x[OpLoadPtr-28]
+	_ = x[OpLoadFromPtr-29]
+	_ = x[OpStoreToPtr-30]
 }
 
-const _Op_name = "op_arith_startAddSubMulDivModNegop_arith_endop_logic_startEqNEGTLTGTELTENotAndOrop_logic_endJmpJFCallRetPushDupLoadStoreLoadPtrLoadFromPtrStoreToPtr"
+const _Op_name = "op_arith_startAddSubMulDivModNegop_arith_endop_logic_startEqNEGTLTGTELTENotAndOrop_logic_endPrintJmpJFCallRetPushDupLoadStoreLoadPtrLoadFromPtrStoreToPtr"
 
-var _Op_index = [...]uint8{0, 14, 17, 20, 23, 26, 29, 32, 44, 58, 60, 62, 64, 66, 69, 72, 75, 78, 80, 92, 95, 97, 101, 104, 108, 111, 115, 120, 127, 138, 148}
+var _Op_index = [...]uint8{0, 14, 17, 20, 23, 26, 29, 32, 44, 58, 60, 62, 64, 66, 69, 72, 75, 78, 80, 92, 97, 100, 102, 106, 109, 113, 116, 120, 125, 132, 143, 153}
 
 func (i Op) String() string {
 	if i >= Op(len(_Op_index)-1) {

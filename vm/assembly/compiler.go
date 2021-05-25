@@ -252,6 +252,16 @@ func (c *Compiler) compileExpr(expr hir.Expr) {
 		c.compileExpr(e.Index)
 		c.asm.Emit(&AssemblyInstrAdd{})
 		c.asm.Emit(&AssemblyInstrStoreToPtr{})
+	case *hir.ExprGetElement:
+		c.compileExpr(e.ArrayAddr)
+		c.compileExpr(e.Index)
+		c.asm.Emit(&AssemblyInstrAdd{})
+		c.asm.Emit(&AssemblyInstrLoadFromPtr{})
+	case *hir.ExprPrint:
+		for i := len(e.Expr) - 1; i >= 0; i-- {
+			c.compileExpr(e.Expr[i])
+		}
+		c.asm.Emit(&AssemblyInstrPrint{ArgLen: len(e.Expr)})
 	}
 }
 

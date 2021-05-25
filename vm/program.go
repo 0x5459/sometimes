@@ -47,7 +47,7 @@ func NewProgramFromAsm(asm *assembly.AssemblyProgram) *Program {
 		case *assembly.AssemblyInstrGT:
 			instrs[i] = &InstrGT{}
 		case *assembly.AssemblyInstrLT:
-			instrs[i] = &InstrGT{}
+			instrs[i] = &InstrLT{}
 		case *assembly.AssemblyInstrGTE:
 			instrs[i] = &InstrGTE{}
 		case *assembly.AssemblyInstrLTE:
@@ -83,7 +83,8 @@ func NewProgramFromAsm(asm *assembly.AssemblyProgram) *Program {
 			}
 		case *assembly.AssemblyInstrStoreToPtr:
 			instrs[i] = &InstrStoreToPtr{}
-
+		case *assembly.AssemblyInstrPrint:
+			instrs[i] = &InstrPrint{ArgLen: asmInstr.ArgLen}
 		}
 	}
 

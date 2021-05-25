@@ -72,7 +72,7 @@ type (
 
 	Literal struct {
 		*BaseExpr
-		Kind token.Kind // token.INT_LITERAL, token.FLOAT_LITERAL, token.CHAR_LITERAL, token.STRING_LITERAL
+		Kind token.Kind // token.INT_LITERAL, token.FLOAT_LITERAL, token.CHAR_LITERAL, token.STRING_LITERAL, token.BOOLEAN_LITERAL
 		Val  string     // 123, 3.14, 'a', "我的"
 	}
 

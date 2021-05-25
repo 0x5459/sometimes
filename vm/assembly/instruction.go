@@ -56,6 +56,10 @@ type (
 
 	AssemblyInstrLoadFromPtr struct{}
 	AssemblyInstrStoreToPtr  struct{}
+
+	AssemblyInstrPrint struct {
+		ArgLen int
+	}
 )
 
 func (*AssemblyInstrAdd) isAssemblyInstruction()         {}
@@ -84,6 +88,7 @@ func (*AssemblyInstrStore) isAssemblyInstruction()       {}
 func (*AssemblyInstrLoadFromPtr) isAssemblyInstruction() {}
 func (*AssemblyInstrStoreToPtr) isAssemblyInstruction()  {}
 func (*AssemblyInstrLoadPtr) isAssemblyInstruction()     {}
+func (*AssemblyInstrPrint) isAssemblyInstruction()       {}
 
 func (*AssemblyInstrAdd) String() string         { return "Add" }
 func (*AssemblyInstrSub) String() string         { return "Sub" }
@@ -117,3 +122,4 @@ func (lp *AssemblyInstrLoadPtr) String() string {
 	}
 	return fmt.Sprintf("Load%sPtr #%d", s, lp.Offset)
 }
+func (lp *AssemblyInstrPrint) String() string { return fmt.Sprintf("Print %d", lp.ArgLen) }

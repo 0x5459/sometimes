@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"log"
 	"sometimes/ast"
 	"sometimes/lexer"
 	"sometimes/token"
@@ -10,6 +11,12 @@ import (
 type Parser struct {
 	tc  *lexer.TokenCursor
 	tok *token.Token
+}
+
+func NewParser(tc *lexer.TokenCursor) *Parser {
+	return &Parser{
+		tc: tc,
+	}
 }
 
 func (p *Parser) Parse() (consts []*ast.ConstDecl, fns []*ast.FnDecl) {
@@ -143,7 +150,7 @@ func (p *Parser) parseOperand() ast.Expr {
 	case token.IDENT:
 		x := p.parseIdent()
 		return x
-	case token.INT_LITERAL, token.FLOAT_LITERAL, token.CHAR_LITERAL, token.STRING_LITERAL:
+	case token.INT_LITERAL, token.FLOAT_LITERAL, token.CHAR_LITERAL, token.STRING_LITERAL, token.BOOLEAN_LITERAL:
 		x := &ast.Literal{
 			BaseExpr: ast.NewBaseExpr(p.tok.StartPos, p.tok.EndPos),
 			Kind:     p.tok.Kind,
@@ -177,13 +184,16 @@ func (p *Parser) parsePrimaryExpr() ast.Expr {
 		case token.ASSIGN, token.ADD_ASSIGN, token.MUL_ASSIGN,
 			token.QUO_ASSIGN, token.REM_ASSIGN, token.SUB_ASSIGN:
 			if _, isIdent := x.(*ast.Ident); isIdent {
+				op := p.tok
 				p.next()
+
 				rhs := p.parseExpr()
-				p.expect(token.SEMICOLON)
+				// p.expect(token.SEMICOLON)
 				x = &ast.AssignExpr{
 					BaseExpr: ast.NewBaseExpr(x.StartPos(), p.tok.EndPos),
 					Lhs:      x,
 					Rhs:      rhs,
+					Op:       op,
 				}
 			}
 		default:
@@ -248,7 +258,6 @@ func (p *Parser) parseIfExpr() *ast.IfExpr {
 func (p *Parser) parseBlockExpr() *ast.BlockExpr {
 	startPos := p.tok.StartPos
 	p.expect(token.LBRACE)
-
 	var exprs []ast.Expr
 	hasRetExpr := false
 	for p.tok.Kind != token.RBRACE && p.tok.Kind != token.EOF {
@@ -290,7 +299,7 @@ func (p *Parser) parseRetExpr() *ast.ReturnExpr {
 	startPos := p.tok.StartPos
 	p.expect(token.RETURN)
 	e := p.parseExpr()
-	p.expect(token.SEMICOLON)
+	// p.expect(token.SEMICOLON)
 	return &ast.ReturnExpr{
 		BaseExpr: ast.NewBaseExpr(startPos, p.tok.EndPos),
 		Ret:      e,
@@ -304,7 +313,7 @@ func (p *Parser) parseLetExpr() *ast.LetExpr {
 	for {
 		l = append(l, p.parseValueDecl())
 		if p.tok.Kind == token.SEMICOLON || p.tok.Kind == token.EOF {
-			p.next()
+			// p.next()
 			break
 		} else {
 			p.expect(token.COMMA)
@@ -334,7 +343,7 @@ func (p *Parser) parseBreakExpr() *ast.BreakExpr {
 	if p.tok.Kind != token.SEMICOLON {
 		expr = p.parseExpr()
 	}
-	p.expect(token.SEMICOLON)
+	// p.expect(token.SEMICOLON)
 	return &ast.BreakExpr{
 		BaseExpr: ast.NewBaseExpr(startPos, p.tok.EndPos),
 		Expr:     expr,
@@ -344,7 +353,7 @@ func (p *Parser) parseBreakExpr() *ast.BreakExpr {
 func (p *Parser) parseContinueExpr() *ast.ContinueExpr {
 	startPos := p.tok.StartPos
 	p.expect(token.CONTINUE)
-	p.expect(token.SEMICOLON)
+	// p.expect(token.SEMICOLON)
 	return &ast.ContinueExpr{
 		BaseExpr: ast.NewBaseExpr(startPos, p.tok.EndPos),
 	}
@@ -384,12 +393,16 @@ func (p *Parser) parseIdent() *ast.Ident {
 }
 
 func (p *Parser) error(pos token.Pos, msg string) {
-	panic(fmt.Errorf("-> line %d, column %d\n%s", pos.Line(), pos.Col()+1, msg))
+	log.Fatal(fmt.Errorf("-> line %d, column %d\n%s", pos.Line(), pos.Col()+1, msg))
 }
 
 func (p *Parser) errorExpect(expected string) {
+	found := p.tok.Kind.String()
+	if found != p.tok.Val {
+		found = fmt.Sprintf("%s(%s)", found, p.tok.Val)
+	}
 	p.error(p.tok.StartPos,
-		fmt.Sprintf("expected '%s', found '%s'", expected, p.tok.Kind.String()))
+		fmt.Sprintf("expected '%s', found '%s'", expected, found))
 }
 
 func (p *Parser) expect(kind token.Kind) {

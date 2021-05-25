@@ -30,7 +30,7 @@ const (
 	OpAnd
 	OpOr
 	op_logic_end
-
+	OpPrint
 	OpJmp // jump
 	OpJF  // jump if false
 
@@ -84,6 +84,8 @@ type (
 
 	InstrRet struct{}
 
+	InstrPrint struct{ ArgLen int }
+
 	InstrPush struct {
 		DataID DataID
 	}
@@ -106,6 +108,7 @@ type (
 	InstrStoreToPtr  struct{}
 )
 
+func (*InstrPrint) Op() Op       { return OpAdd }
 func (*InstrAdd) Op() Op         { return OpAdd }
 func (*InstrSub) Op() Op         { return OpSub }
 func (*InstrMul) Op() Op         { return OpMul }

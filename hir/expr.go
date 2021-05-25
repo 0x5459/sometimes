@@ -22,6 +22,8 @@ const (
 	ExprTypeContinue
 	ExprTypeArray
 	ExprTypeSetElement
+	ExprTypeGetElement
+	ExprTypePrint
 )
 
 type Expr interface {
@@ -105,6 +107,12 @@ type (
 	ExprSetElement struct {
 		ArrayAddr, Index, Value Expr
 	}
+	ExprGetElement struct {
+		ArrayAddr, Index Expr
+	}
+	ExprPrint struct {
+		Expr []Expr
+	}
 )
 
 func (*ExprLiteral) ExprType() ExprType      { return ExprTypeLiteral }
@@ -124,3 +132,5 @@ func (*ExprBreak) ExprType() ExprType        { return ExprTypeBreak }
 func (*ExprContinue) ExprType() ExprType     { return ExprTypeContinue }
 func (*ExprArray) ExprType() ExprType        { return ExprTypeArray }
 func (*ExprSetElement) ExprType() ExprType   { return ExprTypeSetElement }
+func (*ExprGetElement) ExprType() ExprType   { return ExprTypeGetElement }
+func (*ExprPrint) ExprType() ExprType        { return ExprTypePrint }

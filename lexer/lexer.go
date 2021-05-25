@@ -157,7 +157,11 @@ func (tc *TokenCursor) eatComment(startPos token.Pos) *token.Token {
 func (tc *TokenCursor) eatIdent(startPos token.Pos) *token.Token {
 	idVal := tc.sc.EatWhile(IsIdentBody)
 	if tk, ok := token.Keyword(idVal); ok {
-		return token.NewToken(tk, idVal, startPos, tc.endPos())
+		if tk == token.TRUE || tk == token.FALSE {
+			return token.NewToken(token.BOOLEAN_LITERAL, idVal, startPos, tc.endPos())
+		} else {
+			return token.NewToken(tk, idVal, startPos, tc.endPos())
+		}
 	} else {
 		return token.NewToken(token.IDENT, idVal, startPos, tc.endPos())
 	}
